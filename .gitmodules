@@ -1,0 +1,6 @@
+[submodule "docker/docker-tor-hidden-service"]
+	path = docker/docker-tor-hidden-service
+	url = https://github.com/cmehay/docker-tor-hidden-service
+[submodule "docker/docker-vanguards"]
+	path = docker/docker-vanguards
+	url = https://github.com/onionltd/docker-vanguards

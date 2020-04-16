@@ -2,8 +2,8 @@ package links
 
 import (
 	"context"
-	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	urlutils "github.com/onionltd/mono/pkg/utils/url"
+	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	"go.uber.org/zap"
 )
 

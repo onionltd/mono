@@ -1,0 +1,22 @@
+{{ define "home" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>vworp!</title>
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container">
+        <h1>Welcome to vworp!</h1>
+
+        <p>vworp! is a URL shortener for the Tor network.</p>
+
+        {{ template "elem_new_link_form" }}
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

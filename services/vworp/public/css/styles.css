@@ -1,0 +1,60 @@
+#container {
+    text-align:center;
+}
+
+#logo {
+    font-weight:bold;
+}
+
+#menu {
+    padding:10px;
+    display:flex;
+    flex-wrap:wrap;
+    flex-direction:row;
+    justify-content:space-between;
+}
+
+#menu_links {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:space-between;
+}
+
+#footer {
+    padding:10px;
+}
+
+.ad {
+    border:1px dashed gray;
+    height:120px;
+}
+
+.service_id {
+    font-weight:bold;
+}
+
+body {
+    width:640px;
+    margin:0 auto;
+    color:#202224;
+    font-family:Roboto, Arial;
+    font-size:120%;
+}
+
+div {
+    margin:10px 10px;
+}
+
+a {
+    color:#007d9c;
+    text-decoration:none;
+}
+
+a:hover {
+    text-decoration:underline;
+}
+
+h1, h2, h3, h4 {
+    margin:10px 10px;
+}

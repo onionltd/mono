@@ -1,0 +1,42 @@
+{{ define "service_newlink" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>vworp!</title>
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container">
+        {{ if .Error }}
+            <h1>Oops.</h1>
+
+            <p>{{ .Error }}</p>
+
+            {{ template "elem_new_link_form" }}
+
+            <h4><a href="/help">Need help?</a></h4>
+        {{ else }}
+            <h1>Done.</h1>
+
+            <p>Here's your links for <span class="service_id">{{ .Service.Name }}</span>:</p>
+
+            <div>
+                <label>Full
+                    <input style="width:100%" type="text" readonly="readonly" value="{{ .Link }}">
+                </label>
+            </div>
+
+            <div>
+                <label>Short
+                    <input type="text" style="width:100%" readonly="readonly" value="http://localhost:8080/to/darknetlive/01ba4719">
+                </label>
+            </div>
+        {{ end }}
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

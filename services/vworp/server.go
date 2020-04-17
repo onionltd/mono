@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/onionltd/mono/services/vworp/links"
+	"github.com/onionltd/mono/services/vworp/onions"
 	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
@@ -15,7 +15,7 @@ import (
 
 type server struct {
 	logger       *zap.Logger
-	linksMonitor *links.Monitor
+	linksMonitor *onions.Monitor
 	router       *echo.Echo
 	config       *config
 }
@@ -77,7 +77,7 @@ func (s *server) handleServiceNewURL() echo.HandlerFunc {
 		switch err {
 		case errParseURI:
 			return "This doesn't look like a valid link."
-		case links.ErrUrlNotFound, oniontree.ErrIdNotExists:
+		case onions.ErrUrlNotFound, oniontree.ErrIdNotExists:
 			return "Your link does not belong to any service vworp! can recognize."
 		default:
 			return "Hmm... Something has broken but don't worry it's not your fault."

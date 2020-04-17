@@ -1,4 +1,4 @@
-package links
+package onions
 
 import "golang.org/x/sync/semaphore"
 

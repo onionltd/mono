@@ -1,4 +1,4 @@
-package links
+package onions
 
 type Link struct {
 	URL       string

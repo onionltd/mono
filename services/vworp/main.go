@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
-	"github.com/onionltd/mono/services/vworp/links"
+	"github.com/onionltd/mono/services/vworp/onions"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
@@ -34,7 +34,7 @@ func run() error {
 		return err
 	}
 
-	monitor := links.NewMonitor(monitorLogger)
+	monitor := onions.NewMonitor(monitorLogger)
 	router := setupRouter(httpdLogger, templates)
 
 	server := server{

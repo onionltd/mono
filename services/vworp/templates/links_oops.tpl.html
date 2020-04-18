@@ -1,22 +1,24 @@
-{{ define "home" -}}
+{{ define "links_oops" -}}
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>URL shortener for the Tor network &ndash; vworp!</title>
+        <title>Oops &ndash; vworp!</title>
         <link rel="stylesheet" href="/static/css/styles.css">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     </head>
     <body>
     {{ template "menu" . }}
     <div id="container">
-        <h1>Welcome to vworp!</h1>
+        {{ if .OopsMessage }}
+            <h1>Oops.</h1>
 
-        <p>vworp! is a URL shortener for the Tor network.</p>
+            <p>{{ .OopsMessage }}</p>
 
-        {{ template "elem_new_link_form" }}
+            {{ template "elem_new_link_form" }}
 
-        {{ template "elem_did_you_know" }}
+            <h4><a href="/help">Need help?</a></h4>
+        {{ end }}
     </div>
     {{ template "footer" . }}
     </body>

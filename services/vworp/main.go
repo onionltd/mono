@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
 	"github.com/onionltd/mono/services/vworp/onions"
@@ -28,11 +29,18 @@ func run() error {
 	}
 	monitorLogger := rootLogger.Named("monitor")
 	httpdLogger := rootLogger.Named("httpd")
+	templatesLogger := rootLogger.Named("templates")
 
-	templates, err := setupTemplates(cfg)
+	templates, err := setupTemplates(templatesLogger, cfg)
 	if err != nil {
 		return err
 	}
+
+	db, err := setupBadger(cfg)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
 
 	monitor := onions.NewMonitor(monitorLogger)
 	router := setupRouter(httpdLogger, templates)
@@ -42,6 +50,8 @@ func run() error {
 		config:       cfg,
 		linksMonitor: monitor,
 		router:       router,
+		badgerDB:     db,
+		oopsSet:      oopsies,
 	}
 	server.routes()
 
@@ -124,8 +134,10 @@ func setupLogger(cfg *config) (*zap.Logger, error) {
 	}.Build()
 }
 
-func setupTemplates(cfg *config) (*Templates, error) {
-	t := &Templates{}
+func setupTemplates(logger *zap.Logger, cfg *config) (*Templates, error) {
+	t := &Templates{
+		logger: logger,
+	}
 	if err := t.Load(cfg.TemplatesDir); err != nil {
 		return nil, err
 	}
@@ -159,6 +171,10 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 		_ = c.String(code, fmt.Sprintf("%d %s", code, http.StatusText(code)))
 	}
 	return e
+}
+
+func setupBadger(cfg *config) (*badger.DB, error) {
+	return badger.Open(badger.DefaultOptions(cfg.DatabaseDir))
 }
 
 func main() {

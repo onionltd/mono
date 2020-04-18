@@ -1,0 +1,30 @@
+{{ define "redirect" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ if .Online -}}Redirecting{{- else -}}{{ .Service.Name }} is offline{{ end }} &ndash; vworp!</title>
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    </head>
+    <body>
+        {{ template "menu" . }}
+        <div id="container">
+            {{ if .Online }}
+                <p>You are being redirected to</p>
+
+                <h1>{{ .Service.Name }}</h1>
+
+                <p>
+                    <a href="{{ .Mirror }}/{{ .Link.Path }}">{{ .Mirror }}{{ .Link.Path }}</a>
+                </p>
+            {{ else }}
+                <h1>{{ .Service.Name }}</h1>
+
+                <p>All mirrors are <span>offline</span>.</p>
+            {{ end }}
+        </div>
+        {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

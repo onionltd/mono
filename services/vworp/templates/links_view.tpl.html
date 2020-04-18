@@ -1,0 +1,38 @@
+{{ define "links_view" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Done &ndash; vworp!</title>
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container">
+        {{ if eq .Section "new" }}
+            <h1>Done.</h1>
+
+            <p>Here's your links for <span class="service_id">{{ .Service.Name }}</span>.</p>
+
+            <div>
+                <label>Full
+                    <input style="width:100%" type="text" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}{{ .Link.Path }}">
+                </label>
+            </div>
+
+            <div>
+                <label>Shortened
+                    <input type="text" style="width:100%" readonly="readonly" value="http://{{ .ServerAddress }}/t/{{ .Link.Fingerprint }}">
+                </label>
+            </div>
+        {{ else }}
+            <h1>Link info</h1>
+
+            <p>TODO!</p>
+        {{ end }}
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

@@ -2,7 +2,7 @@ LDFLAGS=-w -s
 
 .PHONY: build
 build:
-	go build -a -v -ldflags="$(LDFLAGS)" -o "$(SERVICE_NAME)" -mod vendor
+	go build -v -ldflags="$(LDFLAGS)" -o "$(SERVICE_NAME)" -mod vendor
 
 .PHONY: docker/build
 docker/build:

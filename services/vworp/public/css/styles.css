@@ -2,15 +2,11 @@
     text-align:center;
 }
 
-#logo {
-    font-weight:bold;
-}
-
 #menu {
-    padding:10px;
     display:flex;
     flex-wrap:wrap;
     flex-direction:row;
+    padding:10px;
     justify-content:space-between;
 }
 
@@ -23,11 +19,46 @@
 
 #footer {
     padding:10px;
+    text-align:right;
+    font-size:85%;
+    margin-top:40px;
 }
 
-.ad {
-    border:1px dashed gray;
-    height:120px;
+.logo {
+    width:4rem;
+    padding:0;
+    font-weight:bold;
+    display:block;
+}
+
+.logo:hover {
+    text-decoration:none;
+}
+
+.logo img {
+    margin:0;
+    width:100%;
+    display:block;
+}
+
+.logo img:last-child {
+    display:none;
+}
+
+.logo:hover img:last-child {
+    display:block;
+}
+
+.logo:hover img:first-child {
+    display:none;
+}
+
+.elem {
+    margin-top:20px;
+}
+
+.wedge {
+    margin:0 5px;
 }
 
 .service_id {

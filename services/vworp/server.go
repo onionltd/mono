@@ -119,10 +119,10 @@ func (s *server) handleRedirectFingerprint() echo.HandlerFunc {
 
 func (s *server) handleLinksNew() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, err := url.Parse(
+		u, err := url.ParseRequestURI(
 			strings.TrimSpace(c.FormValue("link")),
 		)
-		if err != nil || u.Scheme == "" || u.Host == "" {
+		if err != nil {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusBadRequest))
 		}
 

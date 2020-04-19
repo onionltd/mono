@@ -1,0 +1,151 @@
+version: "3.3"
+services:
+  tor_hs:
+    image: localhost/tor-hidden-service:v0.4.2.7
+    links:
+      - vworp
+      - vanguards_hs
+    restart: always
+    environment:
+      VWORP_TOR_SERVICE_HOSTS: 80:vworp:8080
+      VWORP_TOR_SERVICE_VERSION: 3
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.2
+    volumes:
+      - vworp.tor_hs.keys:/var/lib/tor/hidden_service/
+
+  vanguards_hs:
+    image: localhost/vanguards:latest
+    restart: always
+    environment:
+      GLOBAL_CONTROL_IP: 10.1.0.2
+      GLOBAL_CONTROL_PORT: 9051
+      GLOBAL_CONTROL_PASS: password1
+      GLOBAL_ENABLE_VANGUARDS: "True"
+      GLOBAL_ENABLE_BANDGUARDS: "True"
+      GLOBAL_ENABLE_CBTVERIFY: "False"
+      GLOBAL_ENABLE_RENDGUARD: "True"
+      GLOBAL_CLOSE_CIRCUITS: "True"
+      GLOBAL_ONE_SHOT_VANGUARDS: "False"
+      GLOBAL_LOGLEVEL: NOTICE
+      VANGUARDS_LAYER1_LIFETIME_DAYS: 0
+      VANGUARDS_MAX_LAYER2_LIFETIME_HOURS: 1080
+      VANGUARDS_MAX_LAYER3_LIFETIME_HOURS: 48
+      VANGUARDS_MIN_LAYER2_LIFETIME_HOURS: 24
+      VANGUARDS_MIN_LAYER3_LIFETIME_HOURS: 1
+      VANGUARDS_NUM_LAYER1_GUARDS: 2
+      VANGUARDS_NUM_LAYER2_GUARDS: 3
+      VANGUARDS_NUM_LAYER3_GUARDS: 8
+      BANGUARDS_CIRC_MAX_AGE_HOURS: 24
+      BANGUARDS_CIRC_MAX_HSDESC_KILOBYTES: 30
+      BANGUARDS_CIRC_MAX_MEGABYTES: 0
+      BANGUARDS_CIRC_MAX_DISCONNECTED_SECS: 30
+      BANGUARDS_CONN_MAX_DISCONNECTED_SECS: 15
+      RENDGUARD_REND_USE_MAX_USE_TO_BW_RATIO: 5.0
+      RENDGUARD_REND_USE_MAX_CONSENSUS_WEIGHT_CHURN: 1.0
+      RENDGUARD_REND_USE_CLOSE_CIRCUITS_ON_OVERUSE: "True"
+      RENDGUARD_REND_USE_GLOBAL_START_COUNT: 1000
+      RENDGUARD_REND_USE_RELAY_START_COUNT: 100
+      RENDGUARD_REND_USE_SCALE_AT_COUNT: 20000
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.3
+    volumes:
+      - vworp.tor_hs.keys:/var/lib/tor/hidden_service/
+
+  tor_proxy:
+    image: localhost/tor-hidden-service:v0.4.2.7
+    links:
+      - vanguards_proxy
+    restart: always
+    environment:
+      TOR_SOCKS_PORT: 0.0.0.0:9050
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.12
+    volumes:
+      - vworp.tor_proxy.keys:/var/lib/tor/hidden_service/
+
+  vanguards_proxy:
+    image: localhost/vanguards:latest
+    restart: always
+    environment:
+      GLOBAL_CONTROL_IP: 10.1.0.12
+      GLOBAL_CONTROL_PORT: 9051
+      GLOBAL_CONTROL_PASS: password1
+      GLOBAL_ENABLE_VANGUARDS: "True"
+      GLOBAL_ENABLE_BANDGUARDS: "True"
+      GLOBAL_ENABLE_CBTVERIFY: "False"
+      GLOBAL_ENABLE_RENDGUARD: "True"
+      GLOBAL_CLOSE_CIRCUITS: "True"
+      GLOBAL_ONE_SHOT_VANGUARDS: "False"
+      GLOBAL_LOGLEVEL: NOTICE
+      VANGUARDS_LAYER1_LIFETIME_DAYS: 0
+      VANGUARDS_MAX_LAYER2_LIFETIME_HOURS: 1080
+      VANGUARDS_MAX_LAYER3_LIFETIME_HOURS: 48
+      VANGUARDS_MIN_LAYER2_LIFETIME_HOURS: 24
+      VANGUARDS_MIN_LAYER3_LIFETIME_HOURS: 1
+      VANGUARDS_NUM_LAYER1_GUARDS: 2
+      VANGUARDS_NUM_LAYER2_GUARDS: 3
+      VANGUARDS_NUM_LAYER3_GUARDS: 8
+      BANGUARDS_CIRC_MAX_AGE_HOURS: 24
+      BANGUARDS_CIRC_MAX_HSDESC_KILOBYTES: 30
+      BANGUARDS_CIRC_MAX_MEGABYTES: 0
+      BANGUARDS_CIRC_MAX_DISCONNECTED_SECS: 30
+      BANGUARDS_CONN_MAX_DISCONNECTED_SECS: 15
+      RENDGUARD_REND_USE_MAX_USE_TO_BW_RATIO: 5.0
+      RENDGUARD_REND_USE_MAX_CONSENSUS_WEIGHT_CHURN: 1.0
+      RENDGUARD_REND_USE_CLOSE_CIRCUITS_ON_OVERUSE: "True"
+      RENDGUARD_REND_USE_GLOBAL_START_COUNT: 1000
+      RENDGUARD_REND_USE_RELAY_START_COUNT: 100
+      RENDGUARD_REND_USE_SCALE_AT_COUNT: 20000
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.13
+    volumes:
+      - vworp.tor_proxy.keys:/var/lib/tor/hidden_service/
+
+  vworp:
+    image: localhost/vworp:latest
+    restart: always
+    environment:
+      HTTP_LISTEN: 0.0.0.0:8080
+      WWW_PATH: /opt/vworp/public
+      TEMPLATES_PATH: /opt/vworp/templates/*.html
+      ONIONTREE_PATH: /home/user/data/ro/oniontree
+      BADGERDB_PATH: /home/user/data/rw/vworp.db
+      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_PORT: 9050
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.20
+    volumes:
+      - vworp.vworp.data.ro:/home/user/data/ro:ro
+      - vworp.vworp.data.rw:/home/user/data/rw
+
+networks:
+  vworp.public:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/24
+
+volumes:
+  vworp.tor_hs.keys:
+    external: true
+  vworp.tor_proxy.keys:
+    external: true
+  vworp.vworp.data.ro:
+    external: true
+  vworp.vworp.data.rw:
+    external: true

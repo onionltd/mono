@@ -4,6 +4,10 @@ LDFLAGS=-w -s
 build:
 	go build -v -ldflags="$(LDFLAGS)" -o "$(SERVICE_NAME)" -mod vendor
 
+.PHONY: export
+export:
+	mkdir -p "./exported" && cp -r $(SERVICE_EXPORT_DIRS) "./exported"
+
 .PHONY: docker/build
 docker/build:
 	$(MAKE) build -C ../../docker/service-torsocks \

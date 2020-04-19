@@ -2,16 +2,14 @@
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
+        {{ template "head" }}
         <title>Oops &ndash; vworp!</title>
-        <link rel="stylesheet" href="/static/css/styles.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     </head>
     <body>
     {{ template "menu" . }}
     <div id="container">
         {{ if .OopsMessage }}
-            <h1>Oops.</h1>
+            <h1>Oops</h1>
 
             <p>{{ .OopsMessage }}</p>
 

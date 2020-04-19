@@ -7,7 +7,7 @@
     </head>
     <body>
         {{ template "menu" . }}
-        <div id="container">
+        <div id="container" class="centered">
             {{ if .Online }}
                 <p>You are being redirected to</p>
 
@@ -15,7 +15,9 @@
 
                 <p>
                     via
-                    <br>
+                </p>
+
+                <p>
                     <a href="{{ .Mirror }}{{ .Link.Path }}">{{ .Mirror }}</a>
                 </p>
             {{ else }}

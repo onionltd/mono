@@ -13,21 +13,19 @@
 
             <p>Here's your links for <span class="service_id">{{ .Service.Name }}</span>.</p>
 
-            <div>
-                <label>Full
-                    <input style="width:100%" type="text" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}{{ .Link.Path }}">
-                </label>
+            <div class="elem">
+                <label for="full_link">Full</label>
+                <input style="width:100%" type="text" id="full_link" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}{{ .Link.Path }}">
             </div>
 
-            <div>
-                <label>Shortened
-                    <input type="text" style="width:100%" readonly="readonly" value="http://{{ .ServerAddress }}/t/{{ .Link.Fingerprint }}">
-                </label>
+            <div class="elem">
+                <label for="short_link">Shrt</label>
+                <input type="text" style="width:100%" id="short_link" readonly="readonly" value="http://{{ .ServerAddress }}/t/{{ .Link.Fingerprint }}">
             </div>
         {{ else }}
-            <h1>Link info</h1>
+            <h1>Oops</h1>
 
-            <p>TODO!</p>
+            <p class="centered">Carry on, nothing to see here.</p>
         {{ end }}
     </div>
     {{ template "footer" . }}

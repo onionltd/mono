@@ -43,7 +43,7 @@ func (s *server) handleRedirectPath() echo.HandlerFunc {
 
 		if len(pathTokens) > 1 {
 			path = strings.Join(pathTokens[1:], "/")
-			path, _ = url.QueryUnescape(path)
+			path = "/" + path
 		}
 
 		online, ok := s.linksMonitor.GetOnlineLinks(serviceID)

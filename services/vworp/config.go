@@ -6,5 +6,5 @@ type config struct {
 	TemplatesDir string `long:"templates" description:"Templates directory" required:"yes" env:"TEMPLATES_PATH"`
 	OnionTreeDir string `long:"oniontree" description:"OnionTree directory" required:"yes" env:"ONIONTREE_PATH"`
 	DatabaseDir  string `long:"database" description:"Database directory" required:"yes" env:"BADGERDB_PATH"`
-	LogLevel     string `long:"log-level" description:"Set log level" env:"LOG_LEVEL"`
+	LogLevel     string `long:"log-level" description:"Set log level" default:"info" env:"LOG_LEVEL"`
 }

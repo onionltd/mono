@@ -1,0 +1,32 @@
+{{ define "about" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        {{ template "head" }}
+        <title>About &ndash; vworp!</title>
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container" class="justified">
+        <h1>About</h1>
+
+        <p>vworp! started of as a solution to a common problem: <em>How to link to a web service which may live on many
+        addresses but only a few are online at a time.</em>
+        </p>
+
+        <p>Many, if not all, high-traffic services utilize two or more
+        onion addresses to stave off DDoS attacks. If unsuccessful and an address goes down, one of the others usually
+        takes its place. For habitual users, it's become a common practice to visit the so-called
+        link directories to find the online addresses. This may work for users but not so much for content publishers
+        who want to link to a specific content.</p>
+
+        <p>This is where vworp! comes in. Use it to link to a content in your forum post or on your website and be sure
+        the readers will <em>always</em> end up where you want them to be. Start by pasting a URL to vworp!.</p>
+
+        <p>The list of supported services and its addresses is limited by content of <a href="#">OnionTree</a> &ndash;
+        an open source repository of Tor hidden services. In other words, you can't link to just any service.</p>
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

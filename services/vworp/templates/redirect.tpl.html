@@ -14,7 +14,9 @@
                 <h1>{{ .Service.Name }}</h1>
 
                 <p>
-                    <a href="{{ .Mirror }}{{ .Link.Path }}">{{ .Mirror }}{{ .Link.Path }}</a>
+                    via
+                    <br>
+                    <a href="{{ .Mirror }}{{ .Link.Path }}">{{ .Mirror }}</a>
                 </p>
             {{ else }}
                 <h1>{{ .Service.Name }}</h1>

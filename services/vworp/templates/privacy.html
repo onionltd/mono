@@ -1,0 +1,37 @@
+{{ define "privacy" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        {{ template "head" }}
+        <title>Privacy policy &ndash; vworp!</title>
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container" class="justified">
+        <h1>Privacy policy</h1>
+
+        <p>Version: <strong>1.0</strong> <span class="wedge">|</span> Last modified: <strong>2020-04-19</strong></p>
+
+        <p><em>This is the very first draft of the policy. If you feel like something is not properly addressed, let me know.</em></p>
+
+        <h2>Logs</h2>
+
+        <p>The server is configured to log incoming HTTP requests. The information included in the logs is:</p>
+
+        <ul>
+            <li>Date and Time of the request</li>
+            <li>Visited URL</li>
+            <li>User agent</li>
+        </ul>
+
+        <p>The information from the logs is used to assess a number of visitors per given period.
+        I may or may not keep the logs indefinitely.</p>
+
+        <h2>URL hits</h2>
+
+        <p>vworp! keeps count of visits of a shortened URL. This information is used internally to build various statistics.</p>
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

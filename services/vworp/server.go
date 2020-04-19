@@ -224,9 +224,9 @@ func (s *server) handleLinksOops(oopsMessages oopsMessages) echo.HandlerFunc {
 	}
 }
 
-func (s *server) handleHome() echo.HandlerFunc {
+func (s *server) handlePage(name string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.Render(http.StatusOK, "home", nil)
+		return c.Render(http.StatusOK, name, nil)
 	}
 }
 

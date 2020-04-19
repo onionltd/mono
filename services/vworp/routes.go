@@ -1,7 +1,9 @@
 package main
 
 func (s *server) routes() {
-	s.router.GET("/", s.handleHome())
+	s.router.GET("/", s.handlePage("home"))
+	s.router.GET("/about", s.handlePage("about"))
+	s.router.GET("/privacy", s.handlePage("privacy"))
 	s.router.GET("/health", s.handleHealthCheck())
 
 	s.router.POST("/links/new", s.handleLinksNew())

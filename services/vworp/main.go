@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
+	"github.com/dgraph-io/badger/v2/options"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
 	"github.com/onionltd/mono/services/vworp/onions"
@@ -178,7 +179,9 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 }
 
 func setupBadger(cfg *config) (*badger.DB, error) {
-	return badger.Open(badger.DefaultOptions(cfg.DatabaseDir))
+	opts := badger.DefaultOptions(cfg.DatabaseDir)
+	opts = opts.WithValueLogLoadingMode(options.FileIO)
+	return badger.Open(opts)
 }
 
 func main() {

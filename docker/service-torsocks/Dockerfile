@@ -19,6 +19,9 @@ COPY --from=gobuilder /go/src/github.com/onionltd/mono/services/${SERVICE_NAME}/
 RUN adduser -D user
 
 USER user
+WORKDIR /home/user
+
+RUN mkdir -p data/ro data/rw
 
 ENV SERVICE=${SERVICE_NAME}
 ENV TORSOCKS_CONF_FILE=/home/user/.torsocks.conf

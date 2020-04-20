@@ -14,5 +14,7 @@ func (s *server) routes() {
 	s.router.GET("/to/:id/:fp", s.handleRedirect())
 	s.router.GET("/to/oops/:id", s.handleLinksOops(s.oopsSet["/to/oops/:id"]))
 
+	s.router.File("/robots.txt", s.config.WWWDir + "/robots.txt")
+
 	s.router.Static("/static", s.config.WWWDir)
 }

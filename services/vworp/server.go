@@ -79,10 +79,10 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 
 func (s *server) handleLinksNew() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, err := url.ParseRequestURI(
+		u, err := url.Parse(
 			strings.TrimSpace(c.FormValue("link")),
 		)
-		if err != nil {
+		if err != nil || u.Scheme == "" || u.Host == "" {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusBadRequest))
 		}
 

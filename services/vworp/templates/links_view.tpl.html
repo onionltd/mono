@@ -7,15 +7,29 @@
     </head>
     <body>
     {{ template "menu" . }}
-    <div id="container">
+    <div id="container" class="centered">
         {{ if eq .Section "new" }}
             <h1>Done</h1>
 
-            <p>Here's your link for <span class="service_id">{{ .Service.Name }}</span>.</p>
+            <p>
+                The address in the submitted link belongs to <span class="service_id">{{ .Service.Name }}</span>.
+            </p>
+
+            {{ if gt (len .Service.URLs) 1 }}
+                <p>
+                    <span class="service_id">{{ .Service.Name }}</span> is known to use <strong>{{ len .Service.URLs }}</strong> different addresses.
+                </p>
+            {{ end }}
+
+            <p>Use the links below to redirect there. A preview link will give your recipients a chance to see the
+            destination before being redirected.</p>
 
             <div class="elem">
-                <label for="full_link">Full</label>
-                <input style="width:100%" type="text" id="full_link" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
+                <input type="text" style="width:100%;" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
+            </div>
+
+            <div class="elem">
+                <input type="text" style="width:100%;" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}?preview">
             </div>
         {{ else }}
             <h1>Oops</h1>

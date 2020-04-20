@@ -109,8 +109,6 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 
 		// Someone just pasted a vworp! link
 		if service.ID == "vworp" {
-			// TODO: parse the link and show an information
-			// 	This is a legitimate feature which translates shortened links to full links.
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusNotAcceptable))
 		}
 

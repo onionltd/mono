@@ -6,7 +6,7 @@ build:
 
 .PHONY: export
 export:
-	mkdir -p "./exported" && cp -r $(SERVICE_EXPORT_DIRS) "./exported"
+	@if [ ! -z "$(SERVICE_EXPORT_DIRS)" ]; then mkdir -p "./exported" && cp -r $(SERVICE_EXPORT_DIRS) "./exported"; fi
 
 .PHONY: docker/build
 docker/build:

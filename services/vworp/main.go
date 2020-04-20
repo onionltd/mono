@@ -151,15 +151,19 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.Renderer = t
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// FIXME: use only a single log message
-			logger.Info("request",
-				zap.String("method", c.Request().Method),
-				zap.String("url", c.Request().URL.Path),
-				zap.String("user_agent", c.Request().UserAgent()),
-			)
-			logger.Info("response",
-				zap.Int("status", c.Response().Status),
-			)
+			if writer := logger.Check(zap.InfoLevel, ""); writer != nil {
+				writer.Write(
+					zap.Reflect("request", map[string]interface{}{
+						"method":     c.Request().Method,
+						"path":       c.Request().URL.Path,
+						"user_agent": c.Request().UserAgent(),
+					}),
+					zap.Reflect("response", map[string]interface{}{
+						"code":   c.Response().Status,
+						"status": http.StatusText(c.Response().Status),
+					}),
+				)
+			}
 			return next(c)
 		}
 	})

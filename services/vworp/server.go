@@ -60,6 +60,10 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusInternalServerError))
 		}
 
+		if link.ServiceID() != service.ID {
+			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
+		}
+
 		pageContent := pageData{}
 		pageContent.Service = service
 		pageContent.Link = link

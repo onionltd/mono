@@ -56,24 +56,6 @@ func run() error {
 	}
 	server.routes()
 
-	wg := sync.WaitGroup{}
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-		if err := monitor.Start(cfg.OnionTreeDir); err != nil {
-			rootLogger.Error("monitor error", zap.Error(err))
-		}
-	}()
-	go func() {
-		defer wg.Done()
-		if err := router.Start(cfg.Listen); err != nil {
-			if err != http.ErrServerClosed {
-				rootLogger.Error("http server error", zap.Error(err))
-			}
-		}
-	}()
-
 	// Handle termination signals
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt)
@@ -84,6 +66,26 @@ func run() error {
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 		_ = router.Shutdown(ctx)
 		_ = monitor.Stop(ctx)
+	}()
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if err := monitor.Start(cfg.OnionTreeDir); err != nil {
+			rootLogger.Error("monitor error", zap.Error(err))
+			die()
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		if err := router.Start(cfg.Listen); err != nil {
+			if err != http.ErrServerClosed {
+				rootLogger.Error("http server error", zap.Error(err))
+				die()
+			}
+		}
 	}()
 
 	wg.Wait()
@@ -182,6 +184,11 @@ func setupBadger(cfg *config) (*badger.DB, error) {
 	opts := badger.DefaultOptions(cfg.DatabaseDir)
 	opts = opts.WithValueLogLoadingMode(options.FileIO)
 	return badger.Open(opts)
+}
+
+func die() {
+	p, _ := os.FindProcess(os.Getpid())
+	_ = p.Signal(os.Interrupt)
 }
 
 func main() {

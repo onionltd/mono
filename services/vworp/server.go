@@ -180,9 +180,10 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 	}
 }
 
-func (s *server) handleLinksOops(oopsMessages oopsMessages) echo.HandlerFunc {
+func (s *server) handleLinksOops(oopsMessages oopsMessages, showSubmitForm bool) echo.HandlerFunc {
 	type pageData struct {
 		OopsMessage string
+		ShowSubmitForm bool
 	}
 	idToOopsMessage := func(val string) string {
 		num, err := strconv.Atoi(val)
@@ -193,6 +194,7 @@ func (s *server) handleLinksOops(oopsMessages oopsMessages) echo.HandlerFunc {
 	}
 	return func(c echo.Context) error {
 		pageContent := pageData{}
+		pageContent.ShowSubmitForm = showSubmitForm
 		pageContent.OopsMessage = idToOopsMessage(c.Param("id"))
 		return c.Render(http.StatusOK, "links_oops", pageContent)
 	}

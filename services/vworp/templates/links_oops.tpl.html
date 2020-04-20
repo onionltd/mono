@@ -13,7 +13,9 @@
 
             <p>{{ .OopsMessage }}</p>
 
-            {{ template "elem_new_link_form" }}
+            {{ if .ShowSubmitForm -}}
+                {{ template "elem_new_link_form" }}
+            {{- end }}
 
             {{ template "elem_need_help" }}
         {{ end }}

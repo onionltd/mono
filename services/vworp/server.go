@@ -36,6 +36,14 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		Link    *links.Link
 		Mirror  string
 	}
+	isPreview := func(values url.Values) bool {
+		for key := range values {
+			if key == "preview" {
+				return true
+			}
+		}
+		return false
+	}
 	return func(c echo.Context) error {
 		serviceID := c.Param("id")
 		fingerprint := c.Param("fp")
@@ -71,6 +79,12 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 
 		if len(online) > 0 {
 			pageContent.Mirror = online[0]
+		}
+
+		// If there'a an active mirror and preview is disabled, redirect immediately.
+		if pageContent.Mirror != "" && !isPreview(c.QueryParams()) {
+			dest := pageContent.Mirror + link.Path()
+			return c.Redirect(http.StatusSeeOther, dest)
 		}
 
 		return c.Render(http.StatusOK, "redirect", pageContent)

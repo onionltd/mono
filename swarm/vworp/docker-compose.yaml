@@ -61,6 +61,8 @@ services:
   tor_proxy:
     image: localhost/tor-hidden-service:v0.4.2.7
     links:
+      - vworp
+      - gitsync
       - vanguards_proxy
     restart: always
     environment:
@@ -132,6 +134,26 @@ services:
       - vworp.vworp.data.ro:/home/user/data/ro:ro
       - vworp.vworp.data.rw:/home/user/data/rw
 
+  gitsync:
+    image: localhost/gitsync:latest
+    restart: always
+    environment:
+      REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git
+      REPOSITORY_SYNC_INTERVAL: 15m
+      REPOSITORY_SYNC_DEPTH: 1
+      OUTPUT_PATH: /home/user/data/rw/oniontree
+      # TODO: change to false!
+      NO_VERIFY_SIGNATURE: "true"
+      PGP_KEYRING: /home/user/data/ro/pgp.txt
+      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_PORT: 9050
+    networks:
+      vworp.public:
+        ipv4_address: 10.1.0.21
+    volumes:
+      - vworp.gitsync.data.ro:/home/user/data/ro:ro
+      - vworp.vworp.data.ro:/home/user/data/rw
+
 networks:
   vworp.public:
     driver: bridge
@@ -148,4 +170,6 @@ volumes:
   vworp.vworp.data.ro:
     external: true
   vworp.vworp.data.rw:
+    external: true
+  vworp.gitsync.data.ro:
     external: true

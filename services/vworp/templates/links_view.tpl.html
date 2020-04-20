@@ -11,16 +11,11 @@
         {{ if eq .Section "new" }}
             <h1>Done</h1>
 
-            <p>Here's your links for <span class="service_id">{{ .Service.Name }}</span>.</p>
+            <p>Here's your link for <span class="service_id">{{ .Service.Name }}</span>.</p>
 
             <div class="elem">
                 <label for="full_link">Full</label>
-                <input style="width:100%" type="text" id="full_link" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}{{ .Link.Path }}">
-            </div>
-
-            <div class="elem">
-                <label for="short_link">Shrt</label>
-                <input type="text" style="width:100%" id="short_link" readonly="readonly" value="http://{{ .ServerAddress }}/t/{{ .Link.Fingerprint }}">
+                <input style="width:100%" type="text" id="full_link" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
             </div>
         {{ else }}
             <h1>Oops</h1>

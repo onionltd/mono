@@ -29,7 +29,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-func (s *server) handleRedirectPath() echo.HandlerFunc {
+func (s *server) handleRedirect() echo.HandlerFunc {
 	type pageData struct {
 		Service service.Service
 		Online  bool
@@ -37,13 +37,12 @@ func (s *server) handleRedirectPath() echo.HandlerFunc {
 		Mirror  string
 	}
 	return func(c echo.Context) error {
-		pathTokens := strings.Split(c.Request().URL.String(), "/")[2:]
-		serviceID := pathTokens[0]
-		path := ""
+		serviceID := c.Param("id")
+		fingerprint := c.Param("fp")
 
-		if len(pathTokens) > 1 {
-			path = strings.Join(pathTokens[1:], "/")
-			path = "/" + path
+		service, err := s.linksMonitor.GetService(serviceID)
+		if err != nil {
+			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 		}
 
 		online, ok := s.linksMonitor.GetOnlineLinks(serviceID)
@@ -51,57 +50,13 @@ func (s *server) handleRedirectPath() echo.HandlerFunc {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 		}
 
-		service, err := s.linksMonitor.GetService(serviceID)
-		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
-		}
-
-		link, err := links.NewLink(serviceID, path)
-		if err != nil {
-			s.logger.Error("failed to create a new link", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusInternalServerError))
-		}
-
-		pageContent := pageData{}
-		pageContent.Service = service
-		pageContent.Link = link
-		pageContent.Online = len(online) > 0
-
-		if len(online) > 0 {
-			pageContent.Mirror = online[0]
-		}
-
-		return c.Render(http.StatusOK, "redirect", pageContent)
-	}
-}
-
-func (s *server) handleRedirectFingerprint() echo.HandlerFunc {
-	type pageData struct {
-		Service service.Service
-		Online  bool
-		Link    *links.Link
-		Mirror  string
-	}
-	return func(c echo.Context) error {
-		fingerprint := c.Param("fp")
-
 		link := &links.Link{}
 		if err := s.badgerDB.View(badgerutil.Load(badgerutil.Key(fingerprint), link)); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
-				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/t/oops/%d", http.StatusNotFound))
+				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 			}
 			s.logger.Error("failed to read the database", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/t/oops/%d", http.StatusInternalServerError))
-		}
-
-		online, ok := s.linksMonitor.GetOnlineLinks(link.ServiceID())
-		if !ok {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/t/oops/%d", http.StatusNotFound))
-		}
-
-		service, err := s.linksMonitor.GetService(link.ServiceID())
-		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/t/oops/%d", http.StatusNotFound))
+			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusInternalServerError))
 		}
 
 		pageContent := pageData{}

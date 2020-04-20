@@ -28,21 +28,14 @@ var oopsies = oopsSet{
 		0:                              "Hey! You made that up!",
 		69:                             "Haha, funny.",
 		1337:                           "Look at you, hacker. A pathetic creature of meat and bone. Panting and sweating as you run through my corridors. How can you challenge a perfect immortal machine?",
-		http.StatusNotFound:            "I can't find that link",
-		http.StatusInternalServerError: "Hmm... Something has broken down but don't worry it's not your fault.",
-	},
-	"/t/oops/:id": {
-		0:                              "Hey! You made that up!",
-		69:                             "Haha, funny.",
-		1337:                           "Look at you, hacker. A pathetic creature of meat and bone. Panting and sweating as you run through my corridors. How can you challenge a perfect immortal machine?",
-		http.StatusNotFound:            "I can't find that link",
+		http.StatusNotFound:            "I can't find that link.",
 		http.StatusInternalServerError: "Hmm... Something has broken down but don't worry it's not your fault.",
 	},
 	"/to/oops/:id": {
 		0:                              "Hey! You made that up!",
 		69:                             "Haha, funny.",
 		1337:                           "Look at you, hacker. A pathetic creature of meat and bone. Panting and sweating as you run through my corridors. How can you challenge a perfect immortal machine?",
-		http.StatusNotFound:            "I can't find that link",
+		http.StatusNotFound:            "I can't find that link.",
 		http.StatusInternalServerError: "Hmm... Something has broken down but don't worry it's not your fault.",
 	},
 }

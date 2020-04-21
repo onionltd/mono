@@ -18,6 +18,9 @@ services:
         ipv4_address: 10.1.0.2
     volumes:
       - vworp.tor_hs.keys:/var/lib/tor/hidden_service/
+    secrets:
+      - source: vworp
+        target: vworp
 
   vanguards_hs:
     image: localhost/vanguards:latest
@@ -173,3 +176,7 @@ volumes:
     external: true
   vworp.gitsync.data.ro:
     external: true
+
+secrets:
+  vworp:
+    file: ./secrets/hs_ed25519_secret_key

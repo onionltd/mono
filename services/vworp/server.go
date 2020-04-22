@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/labstack/echo/v4"
+	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	badgerutil "github.com/onionltd/mono/pkg/utils/badger"
 	"github.com/onionltd/mono/services/vworp/badger/links"
-	"github.com/onionltd/mono/services/vworp/onions"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
 	"net/http"
@@ -18,7 +18,7 @@ import (
 
 type server struct {
 	logger       *zap.Logger
-	linksMonitor *onions.Monitor
+	linksMonitor *monitor.Monitor
 	router       *echo.Echo
 	badgerDB     *badger.DB
 	config       *config

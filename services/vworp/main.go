@@ -7,7 +7,7 @@ import (
 	"github.com/dgraph-io/badger/v2/options"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
-	"github.com/onionltd/mono/services/vworp/onions"
+	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
@@ -43,13 +43,13 @@ func run() error {
 	}
 	defer db.Close()
 
-	monitor := onions.NewMonitor(monitorLogger)
+	mon := monitor.NewMonitor(monitorLogger)
 	router := setupRouter(httpdLogger, templates)
 
 	server := server{
 		logger:       httpdLogger,
 		config:       cfg,
-		linksMonitor: monitor,
+		linksMonitor: mon,
 		router:       router,
 		badgerDB:     db,
 		oopsSet:      oopsies,
@@ -65,7 +65,7 @@ func run() error {
 		rootLogger.Warn("received a termination signal")
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 		_ = router.Shutdown(ctx)
-		_ = monitor.Stop(ctx)
+		_ = mon.Stop(ctx)
 	}()
 
 	wg := sync.WaitGroup{}
@@ -73,7 +73,7 @@ func run() error {
 
 	go func() {
 		defer wg.Done()
-		if err := monitor.Start(cfg.OnionTreeDir); err != nil {
+		if err := mon.Start(cfg.OnionTreeDir); err != nil {
 			rootLogger.Error("monitor error", zap.Error(err))
 			die()
 		}

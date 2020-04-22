@@ -1,4 +1,4 @@
-package onions
+package monitor
 
 import (
 	"context"

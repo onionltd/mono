@@ -152,7 +152,7 @@ services:
       TORSOCKS_TOR_PORT: 9050
     networks:
       vworp.public:
-        ipv4_address: 10.1.0.21
+        ipv4_address: 10.1.0.30
     volumes:
       - vworp.gitsync.data.ro:/home/user/data/ro:ro
       - vworp.vworp.data.ro:/home/user/data/rw
@@ -167,16 +167,12 @@ networks:
 
 volumes:
   vworp.tor_hs.keys:
-    external: true
   vworp.tor_proxy.keys:
-    external: true
   vworp.vworp.data.ro:
-    external: true
   vworp.vworp.data.rw:
-    external: true
   vworp.gitsync.data.ro:
     external: true
 
 secrets:
   vworp:
-    file: ./secrets/hs_ed25519_secret_key
+    file: ./secrets/vworp/hs_ed25519_secret_key

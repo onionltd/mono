@@ -170,6 +170,7 @@ volumes:
   vworp.tor_proxy.keys:
   vworp.vworp.data.ro:
   vworp.vworp.data.rw:
+    external: true
   vworp.gitsync.data.ro:
     external: true
 

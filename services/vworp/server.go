@@ -180,7 +180,7 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 
 func (s *server) handleLinksOops(oopsMessages oopsMessages, showSubmitForm bool) echo.HandlerFunc {
 	type pageData struct {
-		OopsMessage string
+		OopsMessage    string
 		ShowSubmitForm bool
 	}
 	idToOopsMessage := func(val string) string {
@@ -201,12 +201,5 @@ func (s *server) handleLinksOops(oopsMessages oopsMessages, showSubmitForm bool)
 func (s *server) handlePage(name string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.Render(http.StatusOK, name, nil)
-	}
-}
-
-func (s *server) handleHealthCheck() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		// TODO: return json?
-		return c.String(http.StatusOK, "")
 	}
 }

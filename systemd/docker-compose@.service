@@ -1,0 +1,27 @@
+[Unit]
+Description=%i service with docker compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+User=user
+Restart=always
+
+WorkingDirectory=/opt/%i
+
+#ExecStartPre=/usr/bin/docker-compose rm -fv
+#ExecStartPre=-/bin/bash -c 'docker volume ls -qf "name=%i." | xargs docker volume rm'
+#ExecStartPre=-/bin/bash -c 'docker network ls -qf "name=%i." | xargs docker network rm'
+#ExecStartPre=-/bin/bash -c 'docker ps -aqf "name=%i.*" | xargs docker rm'
+
+# Remove old containers, images and volumes
+ExecStartPre=/usr/bin/docker-compose down -v
+
+# Compose up
+ExecStart=/usr/bin/docker-compose up
+
+# Compose down, remove containers and volumes
+ExecStop=/usr/bin/docker-compose down -v
+
+[Install]
+WantedBy=multi-user.target

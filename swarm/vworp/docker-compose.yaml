@@ -13,6 +13,8 @@ services:
         DataDirectory /var/lib/tor/hidden_service
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        UseBridges 1
+        %include /run/secrets/bridges
     networks:
       vworp.public:
         ipv4_address: 10.1.0.2
@@ -21,6 +23,8 @@ services:
     secrets:
       - source: vworp
         target: vworp
+      - source: bridges
+        target: bridges
 
   vanguards_hs:
     image: localhost/vanguards:latest
@@ -74,11 +78,16 @@ services:
         DataDirectory /var/lib/tor/hidden_service
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        UseBridges 1
+        %include /run/secrets/bridges
     networks:
       vworp.public:
         ipv4_address: 10.1.0.12
     volumes:
       - vworp.tor_proxy.keys:/var/lib/tor/hidden_service/
+    secrets:
+      - source: bridges
+        target: bridges
 
   vanguards_proxy:
     image: localhost/vanguards:latest
@@ -177,3 +186,5 @@ volumes:
 secrets:
   vworp:
     file: ./secrets/vworp/hs_ed25519_secret_key
+  bridges:
+    file: ./secrets/tor/bridges

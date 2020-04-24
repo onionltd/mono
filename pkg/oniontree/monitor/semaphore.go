@@ -2,6 +2,5 @@ package monitor
 
 import "golang.org/x/sync/semaphore"
 
-const connectionsMax int64 = 10
-
-var connSem = semaphore.NewWeighted(connectionsMax)
+// workerConnSem is used to limit number of simultaneous outbound TCP connections.
+var workerConnSem *semaphore.Weighted

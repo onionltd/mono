@@ -8,16 +8,12 @@ import (
 	"time"
 )
 
-const (
-	pingInterval time.Duration = 1 * time.Minute
-	pingTimeout  time.Duration = 25 * time.Second
-)
-
 // statusCount must must be an odd number!
 const statusCount = 7
 
 type Worker struct {
 	logger        *zap.Logger
+	config        WorkerConfig
 	status        [statusCount]Status
 	statusCounter int
 	stopCh        chan int
@@ -30,7 +26,7 @@ type Worker struct {
 
 func (w *Worker) Start(url string) {
 	w.logger = w.logger.With(zap.String("workerID", url))
-	w.logger.Info("started")
+	w.logger.Info("started", zap.Reflect("config", w.config))
 
 	// FIXME: handle this error!
 	host, _ := urlutils.ParseHostPort(url)
@@ -49,7 +45,7 @@ func (w *Worker) Start(url string) {
 	for {
 		select {
 		case <-time.After(timeout):
-			timeout = pingInterval
+			timeout = w.config.PingInterval
 			// Ping URL and forward the result back to the process
 			status := w.ping(w.ctxReq, host)
 
@@ -87,11 +83,11 @@ func (w *Worker) ping(ctx context.Context, host string) (status Status) {
 }
 
 func (w *Worker) testHost(ctx context.Context, host string) error {
-	if err := connSem.Acquire(ctx, 1); err != nil {
+	if err := workerConnSem.Acquire(ctx, 1); err != nil {
 		return err
 	}
-	defer connSem.Release(1)
-	ctx, _ = context.WithTimeout(ctx, pingTimeout)
+	defer workerConnSem.Release(1)
+	ctx, _ = context.WithTimeout(ctx, w.config.PingTimeout)
 	conn, err := proxy.Dial(ctx, "tcp", host)
 	if err != nil {
 		w.logger.Debug("failed to establish TCP connection",
@@ -109,7 +105,7 @@ func (w *Worker) Stop() {
 	close(w.stopCh)
 }
 
-func NewWorker(logger *zap.Logger, outputCh chan<- Link) *Worker {
+func NewWorker(logger *zap.Logger, cfg WorkerConfig, outputCh chan<- Link) *Worker {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Worker{
 		logger:       logger,
@@ -117,5 +113,6 @@ func NewWorker(logger *zap.Logger, outputCh chan<- Link) *Worker {
 		outputCh:     outputCh,
 		ctxReq:       ctx,
 		ctxReqCancel: cancel,
+		config:       cfg,
 	}
 }

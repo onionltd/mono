@@ -6,15 +6,16 @@ import (
 	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
+	"golang.org/x/sync/semaphore"
 	"sync"
 	"time"
 )
 
-const monitorRefreshInterval time.Duration = 10 * time.Second
 const procsChCapacity = 512
 
 type Monitor struct {
 	logger      *zap.Logger
+	config      MonitorConfig
 	stopCh      chan int
 	deadCh      chan int
 	ot          *oniontree.OnionTree
@@ -32,7 +33,9 @@ func (m *Monitor) Start(path string) error {
 	}
 	m.ot = ot
 
-	m.logger.Info("started", zap.String("path", path))
+	workerConnSem = semaphore.NewWeighted(m.config.WorkerTCPConnectionsMax)
+
+	m.logger.Info("started", zap.String("path", path), zap.Reflect("config", m.config))
 
 	defer func() {
 		m.logger.Debug("cleaning up running processes")
@@ -64,7 +67,7 @@ func (m *Monitor) Start(path string) error {
 	for {
 		select {
 		case <-time.After(timeout):
-			timeout = monitorRefreshInterval
+			timeout = m.config.MonitorHeartbeat
 			serviceIDs, err := m.ot.List()
 			if err != nil {
 				m.logger.Warn("failed to read list of services", zap.Error(err))
@@ -190,7 +193,7 @@ func (m *Monitor) updateLinksDB(link Link) {
 }
 
 func (m *Monitor) startNewProcess(serviceID string) {
-	proc := NewProcess(m.logger.Named("process"), m.ot, m.procsCh)
+	proc := NewProcess(m.logger.Named("process"), m.ot, m.config.WorkerConfig, m.procsCh)
 	go proc.Start(serviceID)
 	m.procs[serviceID] = proc
 }
@@ -208,11 +211,12 @@ func (m *Monitor) reloadRunningProcess(serviceID string) {
 	proc.Reload(context.TODO())
 }
 
-func NewMonitor(logger *zap.Logger) *Monitor {
+func NewMonitor(logger *zap.Logger, cfg MonitorConfig) *Monitor {
 	return &Monitor{
 		procs:  make(map[string]*Process),
 		stopCh: make(chan int),
 		deadCh: make(chan int),
 		logger: logger,
+		config: cfg,
 	}
 }

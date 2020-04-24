@@ -11,6 +11,7 @@ const workersChCapacity = 256
 
 type Process struct {
 	logger   *zap.Logger
+	config   WorkerConfig
 	reloadCh chan int
 	stopCh   chan int
 	outputCh chan<- Link
@@ -133,7 +134,7 @@ func (p *Process) Reload(ctx context.Context) {
 // If there's an already running workers for the same URL, only the reference to it is
 // thrown away and not the entire worker! If not cautious this may lead to memory leaks!
 func (p *Process) startNewWorker(url string) {
-	worker := NewWorker(p.logger.Named("worker"), p.workersCh)
+	worker := NewWorker(p.logger.Named("worker"), p.config, p.workersCh)
 	go worker.Start(url)
 	p.workers[url] = worker
 }
@@ -144,7 +145,7 @@ func (p *Process) destroyWorker(url string) {
 	worker.Stop()
 }
 
-func NewProcess(logger *zap.Logger, ot *oniontree.OnionTree, outputCh chan<- Link) *Process {
+func NewProcess(logger *zap.Logger, ot *oniontree.OnionTree, cfg WorkerConfig, outputCh chan<- Link) *Process {
 	return &Process{
 		workers:  make(map[string]*Worker),
 		ot:       ot,
@@ -152,5 +153,6 @@ func NewProcess(logger *zap.Logger, ot *oniontree.OnionTree, outputCh chan<- Lin
 		reloadCh: make(chan int),
 		stopCh:   make(chan int),
 		outputCh: outputCh,
+		config:   cfg,
 	}
 }

@@ -1,5 +1,9 @@
 LDFLAGS=-w -s
 
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+GIT_COMMIT_HASH=$(shell git rev-parse --short HEAD)
+DOCKER_IMAGE_TAG=$(GIT_BRANCH)-$(GIT_COMMIT_HASH)
+
 .PHONY: build
 build:
 	go build -v -ldflags="$(LDFLAGS)" -o "$(SERVICE_NAME)" -mod vendor

@@ -26,10 +26,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	monitorLogger := rootLogger.Named("monitor")
 	httpdLogger := rootLogger.Named("httpd")
 
-	mon := monitor.NewMonitor(monitorLogger)
+	mon := setupMonitor(rootLogger.Named("monitor"), cfg)
 	router := setupRouter(httpdLogger)
 
 	server := server{
@@ -151,6 +150,13 @@ func setupRouter(logger *zap.Logger) *echo.Echo {
 		_ = c.String(code, fmt.Sprintf("%d %s", code, http.StatusText(code)))
 	}
 	return e
+}
+
+func setupMonitor(logger *zap.Logger, cfg *config) *monitor.Monitor {
+	monitorCfg := monitor.DefaultMonitorConfig
+	monitorCfg.WorkerTCPConnectionsMax = cfg.MonitorConnectionsMax
+	monitorCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
+	return monitor.NewMonitor(logger, monitorCfg)
 }
 
 func die() {

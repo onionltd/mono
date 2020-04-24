@@ -2,10 +2,6 @@ version: "3.3"
 services:
   tor_hs:
     image: localhost/tor-hidden-service:v0.4.2.7
-    links:
-      - httpd
-      - hxxpbeam
-      - vanguards_hs
     restart: always
     environment:
       HTTPD_TOR_SERVICE_HOSTS: 80:httpd:8080
@@ -30,6 +26,9 @@ services:
         target: hxxpbeam
       - source: bridges
         target: bridges
+    depends_on:
+      - httpd
+      - hxxpbeam
 
   vanguards_hs:
     image: localhost/vanguards:latest
@@ -69,14 +68,11 @@ services:
         ipv4_address: 10.1.0.3
     volumes:
       - oniontree.tor_hs.keys:/var/lib/tor/hidden_service/
+    depends_on:
+      - tor_hs
 
   tor_proxy:
     image: localhost/tor-hidden-service:v0.4.2.7
-    links:
-      - httpd
-      - gitsync_www
-      - gitsync_oniontree
-      - vanguards_proxy
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050
@@ -133,6 +129,8 @@ services:
         ipv4_address: 10.1.0.13
     volumes:
       - oniontree.tor_proxy.keys:/var/lib/tor/hidden_service/
+    depends_on:
+      - tor_proxy
 
   httpd:
     image: localhost/httpd:latest
@@ -147,6 +145,8 @@ services:
         ipv4_address: 10.1.0.20
     volumes:
       - oniontree.httpd.data.ro:/home/user/data/ro:ro
+    depends_on:
+      - tor_proxy
 
   hxxpbeam:
     image: localhost/hxxpbeam:latest
@@ -161,6 +161,8 @@ services:
         ipv4_address: 10.1.0.21
     volumes:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
+    depends_on:
+      - tor_proxy
 
   gitsync_www:
     image: localhost/gitsync:latest
@@ -170,8 +172,7 @@ services:
       REPOSITORY_SYNC_INTERVAL: 5m
       REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/www
-      # TODO: change to false!
-      NO_VERIFY_SIGNATURE: "true"
+      NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
       TORSOCKS_TOR_ADDRESS: 10.1.0.12
       TORSOCKS_TOR_PORT: 9050
@@ -181,6 +182,8 @@ services:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.httpd.data.ro:/home/user/data/rw
+    depends_on:
+      - tor_proxy
 
   gitsync_oniontree:
     image: localhost/gitsync:latest
@@ -190,8 +193,7 @@ services:
       REPOSITORY_SYNC_INTERVAL: 5m
       REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/oniontree
-      # TODO: change to false!
-      NO_VERIFY_SIGNATURE: "true"
+      NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
       TORSOCKS_TOR_ADDRESS: 10.1.0.12
       TORSOCKS_TOR_PORT: 9050
@@ -201,6 +203,8 @@ services:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.hxxpbeam.data.ro:/home/user/data/rw
+    depends_on:
+      - tor_proxy
 
 networks:
   oniontree.public:

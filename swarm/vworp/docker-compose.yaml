@@ -2,9 +2,6 @@ version: "3.3"
 services:
   tor_hs:
     image: localhost/tor-hidden-service:v0.4.2.7
-    links:
-      - vworp
-      - vanguards_hs
     restart: always
     environment:
       VWORP_TOR_SERVICE_HOSTS: 80:vworp:8080
@@ -25,6 +22,8 @@ services:
         target: vworp
       - source: bridges
         target: bridges
+    depends_on:
+      - vworp
 
   vanguards_hs:
     image: localhost/vanguards:latest
@@ -64,13 +63,11 @@ services:
         ipv4_address: 10.1.0.3
     volumes:
       - vworp.tor_hs.keys:/var/lib/tor/hidden_service/
+    depends_on:
+      - tor_hs
 
   tor_proxy:
     image: localhost/tor-hidden-service:v0.4.2.7
-    links:
-      - vworp
-      - gitsync
-      - vanguards_proxy
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050
@@ -128,6 +125,8 @@ services:
         ipv4_address: 10.1.0.13
     volumes:
       - vworp.tor_proxy.keys:/var/lib/tor/hidden_service/
+    depends_on:
+      - tor_proxy
 
   vworp:
     image: localhost/vworp:latest
@@ -146,6 +145,8 @@ services:
     volumes:
       - vworp.vworp.data.ro:/home/user/data/ro:ro
       - vworp.vworp.data.rw:/home/user/data/rw
+    depends_on:
+      - tor_proxy
 
   gitsync:
     image: localhost/gitsync:latest
@@ -166,6 +167,8 @@ services:
     volumes:
       - vworp.gitsync.data.ro:/home/user/data/ro:ro
       - vworp.vworp.data.ro:/home/user/data/rw
+    depends_on:
+      - tor_proxy
 
 networks:
   vworp.public:

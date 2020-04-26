@@ -18,3 +18,7 @@ docker/build:
 		SERVICE_NAME=$(SERVICE_NAME) \
 		DOCKER_IMAGE=$(DOCKER_IMAGE) \
 		DOCKER_IMAGE_TAG=$(DOCKER_IMAGE_TAG)
+
+.PHONY: docker/save
+docker/save:
+	docker save -o "$(SERVICE_NAME):$(DOCKER_IMAGE_TAG).tar" $(DOCKER_IMAGE):$(DOCKER_IMAGE_TAG)

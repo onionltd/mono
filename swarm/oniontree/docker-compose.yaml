@@ -69,89 +69,20 @@ services:
     depends_on:
       - tor_hs
 
-  haproxy:
-    image: localhost/haproxy:latest
-    restart: always
-    networks:
-      oniontree.public:
-        ipv4_address: 10.1.0.30
-    depends_on:
-      - tor_proxy_1
-      - tor_proxy_2
-      - tor_proxy_3
-
-  tor_proxy_1:
-    image: localhost/tor-hidden-service:v0.4.2.7
-    restart: always
-    environment:
-      TOR_SOCKS_PORT: 0.0.0.0:9050
-      TOR_EXTRA_OPTIONS: |
-        DataDirectory /var/lib/tor/hidden_service
-        ControlPort 0.0.0.0:9051
-        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
-        MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 1800
-        LearnCircuitBuildTimeout 0
-        CircuitBuildTimeout 10
-    networks:
-      oniontree.public:
-        ipv4_address: 10.1.0.31
-    volumes:
-      - oniontree.tor_proxy_1.keys:/var/lib/tor/hidden_service/
-
-  tor_proxy_2:
-    image: localhost/tor-hidden-service:v0.4.2.7
-    restart: always
-    environment:
-      TOR_SOCKS_PORT: 0.0.0.0:9050
-      TOR_EXTRA_OPTIONS: |
-        DataDirectory /var/lib/tor/hidden_service
-        ControlPort 0.0.0.0:9051
-        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
-        MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 1800
-        LearnCircuitBuildTimeout 0
-        CircuitBuildTimeout 10
-    networks:
-      oniontree.public:
-        ipv4_address: 10.1.0.32
-    volumes:
-      - oniontree.tor_proxy_2.keys:/var/lib/tor/hidden_service/
-
-  tor_proxy_3:
-    image: localhost/tor-hidden-service:v0.4.2.7
-    restart: always
-    environment:
-      TOR_SOCKS_PORT: 0.0.0.0:9050
-      TOR_EXTRA_OPTIONS: |
-        DataDirectory /var/lib/tor/hidden_service
-        ControlPort 0.0.0.0:9051
-        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
-        MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 1800
-        LearnCircuitBuildTimeout 0
-        CircuitBuildTimeout 10
-    networks:
-      oniontree.public:
-        ipv4_address: 10.1.0.33
-    volumes:
-      - oniontree.tor_proxy_3.keys:/var/lib/tor/hidden_service/
-
   httpd:
     image: localhost/httpd:latest
     restart: always
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
       WWW_PATH: /home/user/data/ro/www
-      TORSOCKS_TOR_ADDRESS: 10.1.0.30
+      TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.100
+      proxypool.public:
     volumes:
       - oniontree.httpd.data.ro:/home/user/data/ro:ro
-    depends_on:
-      - haproxy
 
   hxxpbeam:
     image: localhost/hxxpbeam:latest
@@ -159,15 +90,14 @@ services:
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
       ONIONTREE_PATH: /home/user/data/ro/oniontree
-      TORSOCKS_TOR_ADDRESS: 10.1.0.30
+      TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.101
+      proxypool.public:
     volumes:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
-    depends_on:
-      - haproxy
 
   gitsync_www:
     image: localhost/gitsync:latest
@@ -179,16 +109,15 @@ services:
       OUTPUT_PATH: /home/user/data/rw/www
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
-      TORSOCKS_TOR_ADDRESS: 10.1.0.30
+      TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.102
+      proxypool.public:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.httpd.data.ro:/home/user/data/rw
-    depends_on:
-      - haproxy
 
   gitsync_oniontree:
     image: localhost/gitsync:latest
@@ -200,18 +129,19 @@ services:
       OUTPUT_PATH: /home/user/data/rw/oniontree
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
-      TORSOCKS_TOR_ADDRESS: 10.1.0.30
+      TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.103
+      proxypool.public:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.hxxpbeam.data.ro:/home/user/data/rw
-    depends_on:
-      - haproxy
 
 networks:
+  proxypool.public:
+    external: true
   oniontree.public:
     driver: bridge
     ipam:
@@ -221,9 +151,6 @@ networks:
 
 volumes:
   oniontree.tor_hs.keys:
-  oniontree.tor_proxy_1.keys:
-  oniontree.tor_proxy_2.keys:
-  oniontree.tor_proxy_3.keys:
   oniontree.httpd.data.ro:
   oniontree.hxxpbeam.data.ro:
   oniontree.gitsync.data.ro:

@@ -1,3 +1,1 @@
-FROM haproxy:latest
-
-COPY rootfs /
+FROM haproxy:alpine

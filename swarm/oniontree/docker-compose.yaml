@@ -14,7 +14,6 @@ services:
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.2
     volumes:
       - oniontree.tor_hs.keys:/var/lib/tor/hidden_service/
     secrets:
@@ -63,7 +62,6 @@ services:
       RENDGUARD_REND_USE_SCALE_AT_COUNT: 20000
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.3
     volumes:
       - oniontree.tor_hs.keys:/var/lib/tor/hidden_service/
     depends_on:
@@ -79,7 +77,6 @@ services:
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.100
       proxypool.public:
     volumes:
       - oniontree.httpd.data.ro:/home/user/data/ro:ro
@@ -94,7 +91,6 @@ services:
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.101
       proxypool.public:
     volumes:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
@@ -113,7 +109,6 @@ services:
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.102
       proxypool.public:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
@@ -133,7 +128,6 @@ services:
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.103
       proxypool.public:
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
@@ -144,10 +138,6 @@ networks:
     external: true
   oniontree.public:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.1.0.0/24
 
 volumes:
   oniontree.tor_hs.keys:

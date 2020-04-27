@@ -167,7 +167,7 @@ services:
     volumes:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
     depends_on:
-      - tor_proxy
+      - haproxy
 
   gitsync_www:
     image: localhost/gitsync:latest

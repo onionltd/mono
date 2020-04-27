@@ -6,6 +6,8 @@ services:
     restart: always
     networks:
       proxypool.public:
+    volumes:
+      - ./config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
     depends_on:
       - tor_proxy_1
       - tor_proxy_2

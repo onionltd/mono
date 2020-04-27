@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# torsocks does not support hostnames so attempt to resolve the name yourself.
+TORSOCKS_TOR_ADDRESS="$(getent hosts $TORSOCKS_TOR_ADDRESS | cut -d ' ' -f 1)"
+
 if [ -z "$TORSOCKS_TOR_ADDRESS" ]; then
   echo "missing TORSOCKS_TOR_ADDRESS"
   exit 1

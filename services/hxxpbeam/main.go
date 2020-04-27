@@ -140,6 +140,7 @@ func setupMonitor(logger *zap.Logger, cfg *config) *monitor.Monitor {
 	monitorCfg := monitor.DefaultMonitorConfig
 	monitorCfg.WorkerTCPConnectionsMax = cfg.MonitorConnectionsMax
 	monitorCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
+	monitorCfg.WorkerConfig.PingInterval = cfg.MonitorPingInterval
 	return monitor.NewMonitor(logger, monitorCfg)
 }
 

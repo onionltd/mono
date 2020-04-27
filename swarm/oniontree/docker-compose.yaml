@@ -69,7 +69,18 @@ services:
     depends_on:
       - tor_hs
 
-  tor_proxy:
+  haproxy:
+    image: localhost/haproxy:latest
+    restart: always
+    networks:
+      oniontree.public:
+        ipv4_address: 10.1.0.30
+    depends_on:
+      - tor_proxy_1
+      - tor_proxy_2
+      - tor_proxy_3
+
+  tor_proxy_1:
     image: localhost/tor-hidden-service:v0.4.2.7
     restart: always
     environment:
@@ -84,53 +95,47 @@ services:
         CircuitBuildTimeout 10
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.12
+        ipv4_address: 10.1.0.31
     volumes:
-      - oniontree.tor_proxy.keys:/var/lib/tor/hidden_service/
-    secrets:
-      - source: bridges
-        target: bridges
+      - oniontree.tor_proxy_1.keys:/var/lib/tor/hidden_service/
 
-  vanguards_proxy:
-    image: localhost/vanguards:latest
+  tor_proxy_2:
+    image: localhost/tor-hidden-service:v0.4.2.7
     restart: always
     environment:
-      GLOBAL_CONTROL_IP: 10.1.0.12
-      GLOBAL_CONTROL_PORT: 9051
-      GLOBAL_CONTROL_PASS: password1
-      GLOBAL_ENABLE_VANGUARDS: "True"
-      GLOBAL_ENABLE_BANDGUARDS: "True"
-      GLOBAL_ENABLE_CBTVERIFY: "False"
-      GLOBAL_ENABLE_RENDGUARD: "True"
-      GLOBAL_CLOSE_CIRCUITS: "True"
-      GLOBAL_ONE_SHOT_VANGUARDS: "False"
-      GLOBAL_LOGLEVEL: NOTICE
-      VANGUARDS_LAYER1_LIFETIME_DAYS: 0
-      VANGUARDS_MAX_LAYER2_LIFETIME_HOURS: 1080
-      VANGUARDS_MAX_LAYER3_LIFETIME_HOURS: 48
-      VANGUARDS_MIN_LAYER2_LIFETIME_HOURS: 24
-      VANGUARDS_MIN_LAYER3_LIFETIME_HOURS: 1
-      VANGUARDS_NUM_LAYER1_GUARDS: 2
-      VANGUARDS_NUM_LAYER2_GUARDS: 3
-      VANGUARDS_NUM_LAYER3_GUARDS: 8
-      BANGUARDS_CIRC_MAX_AGE_HOURS: 24
-      BANGUARDS_CIRC_MAX_HSDESC_KILOBYTES: 30
-      BANGUARDS_CIRC_MAX_MEGABYTES: 0
-      BANGUARDS_CIRC_MAX_DISCONNECTED_SECS: 30
-      BANGUARDS_CONN_MAX_DISCONNECTED_SECS: 15
-      RENDGUARD_REND_USE_MAX_USE_TO_BW_RATIO: 5.0
-      RENDGUARD_REND_USE_MAX_CONSENSUS_WEIGHT_CHURN: 1.0
-      RENDGUARD_REND_USE_CLOSE_CIRCUITS_ON_OVERUSE: "True"
-      RENDGUARD_REND_USE_GLOBAL_START_COUNT: 1000
-      RENDGUARD_REND_USE_RELAY_START_COUNT: 100
-      RENDGUARD_REND_USE_SCALE_AT_COUNT: 20000
+      TOR_SOCKS_PORT: 0.0.0.0:9050
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        MaxClientCircuitsPending 1024
+        MaxCircuitDirtiness 1800
+        LearnCircuitBuildTimeout 0
+        CircuitBuildTimeout 10
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.13
+        ipv4_address: 10.1.0.32
     volumes:
-      - oniontree.tor_proxy.keys:/var/lib/tor/hidden_service/
-    depends_on:
-      - tor_proxy
+      - oniontree.tor_proxy_2.keys:/var/lib/tor/hidden_service/
+
+  tor_proxy_3:
+    image: localhost/tor-hidden-service:v0.4.2.7
+    restart: always
+    environment:
+      TOR_SOCKS_PORT: 0.0.0.0:9050
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        MaxClientCircuitsPending 1024
+        MaxCircuitDirtiness 1800
+        LearnCircuitBuildTimeout 0
+        CircuitBuildTimeout 10
+    networks:
+      oniontree.public:
+        ipv4_address: 10.1.0.33
+    volumes:
+      - oniontree.tor_proxy_3.keys:/var/lib/tor/hidden_service/
 
   httpd:
     image: localhost/httpd:latest
@@ -138,15 +143,15 @@ services:
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
       WWW_PATH: /home/user/data/ro/www
-      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_ADDRESS: 10.1.0.30
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.20
+        ipv4_address: 10.1.0.100
     volumes:
       - oniontree.httpd.data.ro:/home/user/data/ro:ro
     depends_on:
-      - tor_proxy
+      - haproxy
 
   hxxpbeam:
     image: localhost/hxxpbeam:latest
@@ -154,11 +159,11 @@ services:
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
       ONIONTREE_PATH: /home/user/data/ro/oniontree
-      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_ADDRESS: 10.1.0.30
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.21
+        ipv4_address: 10.1.0.101
     volumes:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
     depends_on:
@@ -174,16 +179,16 @@ services:
       OUTPUT_PATH: /home/user/data/rw/www
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
-      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_ADDRESS: 10.1.0.30
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.30
+        ipv4_address: 10.1.0.102
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.httpd.data.ro:/home/user/data/rw
     depends_on:
-      - tor_proxy
+      - haproxy
 
   gitsync_oniontree:
     image: localhost/gitsync:latest
@@ -195,16 +200,16 @@ services:
       OUTPUT_PATH: /home/user/data/rw/oniontree
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
-      TORSOCKS_TOR_ADDRESS: 10.1.0.12
+      TORSOCKS_TOR_ADDRESS: 10.1.0.30
       TORSOCKS_TOR_PORT: 9050
     networks:
       oniontree.public:
-        ipv4_address: 10.1.0.31
+        ipv4_address: 10.1.0.103
     volumes:
       - oniontree.gitsync.data.ro:/home/user/data/ro:ro
       - oniontree.hxxpbeam.data.ro:/home/user/data/rw
     depends_on:
-      - tor_proxy
+      - haproxy
 
 networks:
   oniontree.public:
@@ -216,7 +221,9 @@ networks:
 
 volumes:
   oniontree.tor_hs.keys:
-  oniontree.tor_proxy.keys:
+  oniontree.tor_proxy_1.keys:
+  oniontree.tor_proxy_2.keys:
+  oniontree.tor_proxy_3.keys:
   oniontree.httpd.data.ro:
   oniontree.hxxpbeam.data.ro:
   oniontree.gitsync.data.ro:

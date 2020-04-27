@@ -12,8 +12,6 @@ services:
         DataDirectory /var/lib/tor/hidden_service
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
-        UseBridges 1
-        %include /run/secrets/bridges
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.2
@@ -81,8 +79,9 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        UseBridges 1
-        %include /run/secrets/bridges
+        MaxCircuitDirtiness 1800
+        LearnCircuitBuildTimeout 0
+        CircuitBuildTimeout 10
     networks:
       oniontree.public:
         ipv4_address: 10.1.0.12

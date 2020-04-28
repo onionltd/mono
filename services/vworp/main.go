@@ -8,6 +8,7 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
 	"github.com/onionltd/mono/pkg/oniontree/monitor"
+	loggermw "github.com/onionltd/mono/pkg/utils/echo/middleware/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
@@ -28,7 +29,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	monitorLogger := rootLogger.Named("monitor")
 	httpdLogger := rootLogger.Named("httpd")
 	templatesLogger := rootLogger.Named("templates")
 
@@ -43,7 +43,7 @@ func run() error {
 	}
 	defer db.Close()
 
-	mon := monitor.NewMonitor(monitorLogger)
+	mon := setupMonitor(rootLogger.Named("monitor"), cfg)
 	router := setupRouter(httpdLogger, templates)
 
 	server := server{
@@ -152,24 +152,7 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.HideBanner = true
 	e.HidePort = true
 	e.Renderer = t
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if writer := logger.Check(zap.InfoLevel, ""); writer != nil {
-				writer.Write(
-					zap.Reflect("request", map[string]interface{}{
-						"method":     c.Request().Method,
-						"path":       c.Request().URL.Path,
-						"user_agent": c.Request().UserAgent(),
-					}),
-					zap.Reflect("response", map[string]interface{}{
-						"code":   c.Response().Status,
-						"status": http.StatusText(c.Response().Status),
-					}),
-				)
-			}
-			return next(c)
-		}
-	})
+	e.Use(loggermw.WithConfig(logger))
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		code := http.StatusInternalServerError
 		if he, ok := err.(*echo.HTTPError); ok {
@@ -184,6 +167,14 @@ func setupBadger(cfg *config) (*badger.DB, error) {
 	opts := badger.DefaultOptions(cfg.DatabaseDir)
 	opts = opts.WithValueLogLoadingMode(options.FileIO)
 	return badger.Open(opts)
+}
+
+func setupMonitor(logger *zap.Logger, cfg *config) *monitor.Monitor {
+	monitorCfg := monitor.DefaultMonitorConfig
+	monitorCfg.WorkerTCPConnectionsMax = cfg.MonitorConnectionsMax
+	monitorCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
+	monitorCfg.WorkerConfig.PingInterval = cfg.MonitorPingInterval
+	return monitor.NewMonitor(logger, monitorCfg)
 }
 
 func die() {

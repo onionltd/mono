@@ -61,6 +61,7 @@ services:
         FetchDirInfoExtraEarly 1
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
+        EnforceDistinctSubnets 0
     networks:
       proxypool.public:
 
@@ -85,6 +86,7 @@ services:
         FetchDirInfoExtraEarly 1
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
+        EnforceDistinctSubnets 0
     networks:
       proxypool.public:
 

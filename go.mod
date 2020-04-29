@@ -6,6 +6,7 @@ require (
 	github.com/dgraph-io/badger/v2 v2.0.3
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/labstack/echo/v4 v4.1.16
+	github.com/mojocn/base64Captcha v1.3.1
 	github.com/onionltd/oniontree-tools v0.0.0-20200217165256-a771af70bf68
 	github.com/stretchr/testify v1.4.0
 	go.uber.org/zap v1.14.1

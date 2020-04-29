@@ -90,6 +90,55 @@ services:
     networks:
       proxypool.public:
 
+  tor_proxy_4:
+    image: localhost/tor-hidden-service:v0.4.2.7
+    restart: always
+    environment:
+      TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        MaxClientCircuitsPending 1024
+        MaxCircuitDirtiness 172800
+        LearnCircuitBuildTimeout 0
+        CircuitBuildTimeout 40
+        CircuitStreamTimeout 10
+        # Reduce the timeout for socks client connection to 41 seconds (default 2 minutes), just 1seconds more than CircuitBuildTimeout
+        SocksTimeout 41
+        # Fetch directory authority immediately, to reduce the impact of Tor process reload
+        FetchDirInfoEarly 1
+        FetchDirInfoExtraEarly 1
+        # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
+        SafeLogging 0
+        EnforceDistinctSubnets 0
+    networks:
+      proxypool.public:
+
+  tor_proxy_5:
+    image: localhost/tor-hidden-service:v0.4.2.7
+    restart: always
+    environment:
+      TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
+      TOR_EXTRA_OPTIONS: |
+        DataDirectory /var/lib/tor/hidden_service
+        ControlPort 0.0.0.0:9051
+        HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
+        MaxClientCircuitsPending 1024
+        MaxCircuitDirtiness 172800
+        LearnCircuitBuildTimeout 0
+        CircuitBuildTimeout 40
+        CircuitStreamTimeout 10
+        # Reduce the timeout for socks client connection to 41 seconds (default 2 minutes), just 1seconds more than CircuitBuildTimeout
+        SocksTimeout 41
+        # Fetch directory authority immediately, to reduce the impact of Tor process reload
+        FetchDirInfoEarly 1
+        FetchDirInfoExtraEarly 1
+        # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
+        SafeLogging 0
+        EnforceDistinctSubnets 0
+    networks:
+      proxypool.public:
 networks:
   proxypool.public:
     external: true

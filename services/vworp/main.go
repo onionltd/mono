@@ -7,6 +7,8 @@ import (
 	"github.com/dgraph-io/badger/v2/options"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
+	"github.com/mojocn/base64Captcha"
+	captcha "github.com/onionltd/mono/pkg/base64captcha"
 	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	loggermw "github.com/onionltd/mono/pkg/utils/echo/middleware/logger"
 	"go.uber.org/zap"
@@ -44,6 +46,7 @@ func run() error {
 	defer db.Close()
 
 	mon := setupMonitor(rootLogger.Named("monitor"), cfg)
+
 	router := setupRouter(httpdLogger, templates)
 
 	server := server{
@@ -53,6 +56,7 @@ func run() error {
 		router:       router,
 		badgerDB:     db,
 		oopsSet:      oopsies,
+		captcha:      setupCaptcha(),
 	}
 	server.routes()
 
@@ -175,6 +179,10 @@ func setupMonitor(logger *zap.Logger, cfg *config) *monitor.Monitor {
 	monitorCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
 	monitorCfg.WorkerConfig.PingInterval = cfg.MonitorPingInterval
 	return monitor.NewMonitor(logger, monitorCfg)
+}
+
+func setupCaptcha() *captcha.Captcha {
+	return captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, base64Captcha.DefaultMemStore)
 }
 
 func die() {

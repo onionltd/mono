@@ -1,0 +1,30 @@
+{{ define "captcha" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        {{ template "head" }}
+        <title>Just a moment &ndash; vworp!</title>
+    </head>
+    <body>
+    {{ template "menu" . }}
+    <div id="container" class="centered">
+        <h1>Just a moment</h1>
+
+        <p>Please, provide a solution to the following challenge to prove you are human.</p>
+
+        <p>
+            <img src="{{ .CaptchaBase64 }}" alt="captcha">
+        </p>
+
+        <form method="post" action="{{ .QueryParams.Get "continue" }}">
+            <input type="text" name="solution" placeholder="" autofocus required>
+            <input type="submit" value="Submit">
+            {{ range $name, $value := .QueryParams -}}
+                <input type="hidden" name="{{ $name }}" value="{{ index $value 0 }}">
+            {{ end }}
+        </form>
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

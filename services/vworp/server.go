@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/labstack/echo/v4"
+	captcha "github.com/onionltd/mono/pkg/base64captcha"
 	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	badgerutil "github.com/onionltd/mono/pkg/utils/badger"
 	"github.com/onionltd/mono/services/vworp/badger/links"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
+	"html/template"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -20,6 +22,7 @@ type server struct {
 	logger       *zap.Logger
 	linksMonitor *monitor.Monitor
 	router       *echo.Echo
+	captcha      *captcha.Captcha
 	badgerDB     *badger.DB
 	config       *config
 	oopsSet      oopsSet
@@ -195,6 +198,23 @@ func (s *server) handleLinksOops(oopsMessages oopsMessages, showSubmitForm bool)
 		pageContent.ShowSubmitForm = showSubmitForm
 		pageContent.OopsMessage = idToOopsMessage(c.Param("id"))
 		return c.Render(http.StatusOK, "links_oops", pageContent)
+	}
+}
+
+func (s *server) handleCaptcha() echo.HandlerFunc {
+	type pageData struct {
+		CaptchaBase64 template.URL
+		QueryParams   url.Values
+	}
+	return func(c echo.Context) error {
+		b64, err := s.captcha.GetImageData(c.QueryParam("cid"))
+		if err != nil {
+			return c.Redirect(http.StatusSeeOther, "/")
+		}
+		pageContent := pageData{}
+		pageContent.CaptchaBase64 = template.URL(b64)
+		pageContent.QueryParams = c.QueryParams()
+		return c.Render(http.StatusOK, "captcha", pageContent)
 	}
 }
 

@@ -7,6 +7,7 @@ func (s *server) routes() {
 	s.router.GET("/about", s.handlePage("about"))
 	s.router.GET("/privacy", s.handlePage("privacy"))
 	s.router.GET("/dyk", s.handlePage("dyk"))
+	s.router.GET("/help", s.handlePage("help"))
 	s.router.GET("/health", serverutils.HandleHealthCheck())
 
 	s.router.POST("/links/new", s.handleLinksNew(), s.solveCaptcha())

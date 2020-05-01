@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
-	loggermw "github.com/onionltd/mono/pkg/utils/echo/middleware/logger"
+	loggermw "github.com/onionltd/mono/pkg/echo/middleware/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"

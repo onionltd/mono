@@ -1,6 +1,6 @@
 package main
 
-import serverutils "github.com/onionltd/mono/pkg/utils/echo/server"
+import serverutils "github.com/onionltd/mono/pkg/echo/server"
 
 func (s *server) routes() {
 	s.router.GET("/", s.handlePage("home"))

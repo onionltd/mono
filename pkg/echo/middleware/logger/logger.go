@@ -7,14 +7,16 @@ import (
 )
 
 func WithConfig(logger *zap.Logger) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(h echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			var statusCode int
-			if err, ok := next(c).(*echo.HTTPError); ok {
-				statusCode = err.Code
+			err := h(c)
+			statusCode := 0
+			if v, ok := err.(*echo.HTTPError); ok {
+				statusCode = v.Code
 			} else {
 				statusCode = c.Response().Status
 			}
+
 			if writer := logger.Check(zap.InfoLevel, ""); writer != nil {
 				writer.Write(
 					zap.Reflect("request", map[string]interface{}{
@@ -28,7 +30,7 @@ func WithConfig(logger *zap.Logger) echo.MiddlewareFunc {
 					}),
 				)
 			}
-			return nil
+			return err
 		}
 	}
 }

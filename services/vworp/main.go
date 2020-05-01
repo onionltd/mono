@@ -168,7 +168,7 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 }
 
 func setupBadger(cfg *config) (*badger.DB, error) {
-	opts := badger.DefaultOptions(cfg.DatabaseDir)
+	opts := badger.DefaultOptions(cfg.BadgerDBDir)
 	opts = opts.WithValueLogLoadingMode(options.FileIO)
 	return badger.Open(opts)
 }

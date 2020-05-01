@@ -88,7 +88,7 @@ services:
       HTTP_LISTEN: 0.0.0.0:8080
       ONIONTREE_PATH: /home/user/data/ro/oniontree
       MONITOR_CONNECTIONS_MAX: 64
-      MONITOR_PING_INTERVAL: 3m
+      MONITOR_PING_INTERVAL: 10m
       MONITOR_PING_TIMEOUT: 50s
       LOG_LEVEL: debug
       TORSOCKS_TOR_ADDRESS: haproxy

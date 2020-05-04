@@ -62,8 +62,9 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 		}
 
+		key := links.NewKey(fingerprint)
 		link := &links.Link{}
-		if err := s.badgerDB.View(badgerutil.Load(badgerutil.Key(fingerprint), link)); err != nil {
+		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
 				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 			}
@@ -155,20 +156,21 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 		return ""
 	}
 	return func(c echo.Context) error {
-		id := c.Param("fp")
+		fingerprint := c.Param("fp")
 
+		key := links.NewKey(fingerprint)
 		link := &links.Link{}
-		if err := s.badgerDB.View(badgerutil.Load(badgerutil.Key(id), link)); err != nil {
+		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
-				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", id, http.StatusNotFound))
+				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusNotFound))
 			}
 			s.logger.Error("failed to read the database", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", id, http.StatusInternalServerError))
+			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusInternalServerError))
 		}
 
 		service, err := s.linksMonitor.GetService(link.ServiceID())
 		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", id, http.StatusNotFound))
+			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusNotFound))
 		}
 
 		pageContent := pageData{}

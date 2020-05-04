@@ -4,7 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	badger2 "github.com/onionltd/mono/pkg/utils/badger"
+	"github.com/onionltd/mono/pkg/utils/badger"
+	"strings"
 	"time"
 )
 
@@ -42,12 +43,13 @@ func (l Link) Path() string {
 //
 // Methods to fulfill badger interface.
 //
-func (l Link) Key() badger2.Key {
-	return badger2.Key(l.fingerprint)
+func (l Link) Key() badger.Key {
+	return NewKey(l.fingerprint)
 }
 
-func (l *Link) SetKey(k badger2.Key) {
-	l.fingerprint = string(k)
+func (l *Link) SetKey(k badger.Key) {
+	tokens := strings.SplitN(string(k), ".", 2)
+	l.fingerprint = tokens[1]
 }
 
 func (l Link) Value() ([]byte, error) {
@@ -76,6 +78,12 @@ func (l Link) Expires() time.Time { return time.Unix(0, 0) }
 func (l *Link) SetExpires(t time.Time) {}
 
 func (l Link) Error() string { return "" }
+
+const keyPrefix = "links"
+
+func NewKey(fingerprint string) badger.Key {
+	return badger.Key(fmt.Sprintf("%s.%s", keyPrefix, fingerprint))
+}
 
 func NewLink(serviceID, path string) (*Link, error) {
 	fingerprint := func(serviceID, url string) string {

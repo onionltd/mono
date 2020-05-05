@@ -14,11 +14,11 @@ type Process struct {
 	config   WorkerConfig
 	reloadCh chan int
 	stopCh   chan int
-	outputCh chan<- Link
+	outputCh chan<- interface{}
 	ot       *oniontree.OnionTree
 
-	workersCh chan Link
-	workers   map[string]*Worker
+	workersEventCh chan interface{}
+	workers        map[string]*Worker
 }
 
 func (p *Process) Start(serviceID string) {
@@ -32,26 +32,29 @@ func (p *Process) Start(serviceID string) {
 			p.destroyWorker(url)
 
 			select {
-			case link, ok := <-p.workersCh:
+			case event, ok := <-p.workersEventCh:
 				if !ok {
 					continue
 				}
-				link.ServiceID = serviceID
-				select {
-				case p.outputCh <- link:
+				switch e := event.(type) {
+				case workerStatusEvent:
+					p.sendEvent(processStatusEvent{
+						ServiceID: serviceID,
+						Status:    e.Status,
+						URL:       e.URL,
+					})
 				}
 			}
 		}
-		// Sent termination event to notify the monitor that this process is no longer running.
-		select {
-		case p.outputCh <- Link{
+		close(p.workersEventCh)
+
+		// Sent termination event to notify the monitor that this process has stopped.
+		p.sendEvent(processStoppedEvent{
 			ServiceID: serviceID,
-		}:
-		}
-		close(p.workersCh)
+		})
 	}()
 
-	p.workersCh = make(chan Link, workersChCapacity)
+	p.workersEventCh = make(chan interface{}, workersChCapacity)
 
 	for {
 		select {
@@ -101,14 +104,17 @@ func (p *Process) Start(serviceID string) {
 			}
 
 		// Read from workers channel and forward the data to monitor.
-		// Before doing so, include service ID in Link data.
-		case link, ok := <-p.workersCh:
+		case event, ok := <-p.workersEventCh:
 			if !ok {
 				continue
 			}
-			link.ServiceID = serviceID
-			select {
-			case p.outputCh <- link:
+			switch e := event.(type) {
+			case workerStatusEvent:
+				p.sendEvent(processStatusEvent{
+					ServiceID: serviceID,
+					Status:    e.Status,
+					URL:       e.URL,
+				})
 			}
 		case <-p.stopCh:
 			p.logger.Info("stopped", zap.String("reason", "stop request"))
@@ -130,11 +136,17 @@ func (p *Process) Reload(ctx context.Context) {
 	}
 }
 
+func (p *Process) sendEvent(e interface{}) {
+	select {
+	case p.outputCh <- e:
+	}
+}
+
 // startNewWorker starts a new worker and stores the object in internal map.
 // If there's an already running workers for the same URL, only the reference to it is
 // thrown away and not the entire worker! If not cautious this may lead to memory leaks!
 func (p *Process) startNewWorker(url string) {
-	worker := NewWorker(p.logger.Named("worker"), p.config, p.workersCh)
+	worker := NewWorker(p.logger.Named("worker"), p.config, p.workersEventCh)
 	go worker.Start(url)
 	p.workers[url] = worker
 }
@@ -145,7 +157,7 @@ func (p *Process) destroyWorker(url string) {
 	worker.Stop()
 }
 
-func NewProcess(logger *zap.Logger, ot *oniontree.OnionTree, cfg WorkerConfig, outputCh chan<- Link) *Process {
+func NewProcess(logger *zap.Logger, ot *oniontree.OnionTree, cfg WorkerConfig, outputCh chan<- interface{}) *Process {
 	return &Process{
 		workers:  make(map[string]*Worker),
 		ot:       ot,

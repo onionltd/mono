@@ -17,7 +17,7 @@ type Worker struct {
 	status        [statusCount]Status
 	statusCounter int
 	stopCh        chan int
-	outputCh      chan<- Link
+	eventCh       chan<- interface{}
 
 	// This context is used to cancel undergoing HTTP request.
 	ctxReq       context.Context
@@ -33,12 +33,10 @@ func (w *Worker) Start(url string) {
 
 	// If worker exits, notify process that link is offline.
 	defer func() {
-		select {
-		case w.outputCh <- Link{
-			URL:    url,
+		w.sendEvent(workerStatusEvent{
 			Status: StatusOffline,
-		}:
-		}
+			URL:    url,
+		})
 	}()
 
 	timeout := time.Duration(0)
@@ -56,12 +54,10 @@ func (w *Worker) Start(url string) {
 			default:
 			}
 
-			select {
-			case w.outputCh <- Link{
-				URL:    url,
+			w.sendEvent(workerStatusEvent{
 				Status: status,
-			}:
-			}
+				URL:    url,
+			})
 		case <-w.stopCh:
 			w.logger.Info("stopped", zap.String("reason", "stop request"))
 			return
@@ -99,18 +95,24 @@ func (w *Worker) testHost(ctx context.Context, host string) error {
 	return nil
 }
 
+func (w *Worker) sendEvent(e interface{}) {
+	select {
+	case w.eventCh <- e:
+	}
+}
+
 func (w *Worker) Stop() {
 	// Cancel context to stop an HTTP request in progress.
 	w.ctxReqCancel()
 	close(w.stopCh)
 }
 
-func NewWorker(logger *zap.Logger, cfg WorkerConfig, outputCh chan<- Link) *Worker {
+func NewWorker(logger *zap.Logger, cfg WorkerConfig, outputCh chan<- interface{}) *Worker {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Worker{
 		logger:       logger,
 		stopCh:       make(chan int),
-		outputCh:     outputCh,
+		eventCh:      outputCh,
 		ctxReq:       ctx,
 		ctxReqCancel: cancel,
 		config:       cfg,

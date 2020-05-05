@@ -22,8 +22,8 @@ type Monitor struct {
 	onlineLinks sync.Map
 	linksDB     sync.Map
 
-	procsCh chan Link
-	procs   map[string]*Process
+	procsEventCh chan interface{}
+	procs        map[string]*Process
 }
 
 func (m *Monitor) Start(path string) error {
@@ -42,26 +42,27 @@ func (m *Monitor) Start(path string) error {
 		for url := range m.procs {
 			m.destroyProcess(url)
 
-			// Drain the channel (wait for process termination event)
-		drain_loop:
-			for {
+			// Wait for process stopped event
+			done := false
+			for !done {
 				select {
-				case link, ok := <-m.procsCh:
+				case event, ok := <-m.procsEventCh:
 					if !ok {
 						continue
 					}
-					if link.URL == "" {
-						m.onlineLinks.Delete(link.ServiceID)
-						break drain_loop
+					switch e := event.(type) {
+					case processStoppedEvent:
+						m.deleteOnlineLinks(e)
+						done = true
 					}
 				}
 			}
 		}
-		close(m.procsCh)
+		close(m.procsEventCh)
 		m.deadCh <- 1
 	}()
 
-	m.procsCh = make(chan Link, procsChCapacity)
+	m.procsEventCh = make(chan interface{}, procsChCapacity)
 	timeout := time.Duration(0)
 
 	for {
@@ -106,23 +107,17 @@ func (m *Monitor) Start(path string) error {
 				m.reloadRunningProcess(serviceID)
 			}
 
-		case link, ok := <-m.procsCh:
-			m.logger.Debug("update link", zap.Reflect("link", link), zap.Bool("ok", ok))
+		case event, ok := <-m.procsEventCh:
 			if !ok {
 				continue
 			}
-			// Handle events sent by a process.
-			// There are two types of event:
-			// 1. sent to update link status (online/offline)
-			// 2. sent when a process terminates
-			//
-			// When process terminates, emitted event holds only a service ID.
-			if link.URL != "" {
-				m.updateOnlineLinks(link)
-				m.updateLinksDB(link)
-			} else {
-				// TODO: wrap inside a method!
-				m.onlineLinks.Delete(link.ServiceID)
+			switch e := event.(type) {
+			case processStatusEvent:
+				m.logger.Debug("update link", zap.Reflect("event", e))
+				m.updateOnlineLinks(e)
+				m.updateLinksDB(e)
+			case processStoppedEvent:
+				m.deleteOnlineLinks(e)
 			}
 		case <-m.stopCh:
 			m.logger.Info("stopped", zap.String("reason", "stop request"))
@@ -174,26 +169,30 @@ func (m *Monitor) GetServiceByURL(url string) (service service.Service, err erro
 	return
 }
 
-func (m *Monitor) updateOnlineLinks(link Link) {
-	val, _ := m.onlineLinks.LoadOrStore(link.ServiceID, make(map[string]string))
+func (m *Monitor) updateOnlineLinks(event processStatusEvent) {
+	val, _ := m.onlineLinks.LoadOrStore(event.ServiceID, make(map[string]string))
 	urls := val.(map[string]string)
 
-	if link.Status == StatusOffline {
-		delete(urls, link.URL)
+	if event.Status == StatusOffline {
+		delete(urls, event.URL)
 	} else {
-		urls[link.URL] = link.URL
+		urls[event.URL] = event.URL
 	}
-	m.onlineLinks.Store(link.ServiceID, urls)
+	m.onlineLinks.Store(event.ServiceID, urls)
+}
+
+func (m *Monitor) deleteOnlineLinks(event processStoppedEvent) {
+	m.onlineLinks.Delete(event.ServiceID)
 }
 
 // updateLinksDB stores a link in links database. The database contains data which can be used
 // for fast link -> serviceID translation. Data in links database are never deleted.
-func (m *Monitor) updateLinksDB(link Link) {
-	m.linksDB.Store(link.URL, link.ServiceID)
+func (m *Monitor) updateLinksDB(event processStatusEvent) {
+	m.linksDB.Store(event.URL, event.ServiceID)
 }
 
 func (m *Monitor) startNewProcess(serviceID string) {
-	proc := NewProcess(m.logger.Named("process"), m.ot, m.config.WorkerConfig, m.procsCh)
+	proc := NewProcess(m.logger.Named("process"), m.ot, m.config.WorkerConfig, m.procsEventCh)
 	go proc.Start(serviceID)
 	m.procs[serviceID] = proc
 }

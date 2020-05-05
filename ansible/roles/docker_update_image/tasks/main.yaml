@@ -5,7 +5,8 @@
   register: tmpfile
 
 - name: Save the image {{ image }}
-  docker_image:
+  local_action: docker_image
+  args:
     name: "{{ image }}"
     archive_path: "{{ tmpfile.path }}"
     state: present
@@ -22,7 +23,12 @@
     state: present
   notify: Restart stack
 
-- name: Tag the image {{ image }}
+- name: Untag the image {{ image.split(':')[0] }}:latest
+  docker_image:
+    name: "{{ image.split(':')[0] }}:latest"
+    state: absent
+
+- name: Tag the image {{ image.split(':')[0] }}:latest
   docker_image:
     name: "{{ image }}"
     repository: "{{ image.split(':')[0] }}:latest"

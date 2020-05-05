@@ -119,6 +119,7 @@ func (p *Process) Start(serviceID string) {
 					URL:       e.URL,
 				})
 			}
+
 		case <-p.stopCh:
 			p.logger.Info("stopped", zap.String("reason", "stop request"))
 			return

@@ -3,6 +3,7 @@ package monitor
 import (
 	"context"
 	"errors"
+	"github.com/onionltd/mono/pkg/oniontree/monitor/speed"
 	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
@@ -68,14 +69,23 @@ func (m *Monitor) Start(path string) error {
 	m.procsEventCh = make(chan interface{}, procsChCapacity)
 	timeout := time.Duration(0)
 
+	var (
+		speedMeasurement *speed.Measurement
+		speedHeartbeat   speed.Measurement
+		speedProcEvents  speed.Measurement
+	)
+
 	for {
 		select {
 		case <-time.After(timeout):
+			speedMeasurement = &speedHeartbeat
+			speedMeasurement.Start()
+
 			timeout = m.config.MonitorHeartbeat
 			serviceIDs, err := m.ot.List()
 			if err != nil {
 				m.logger.Warn("failed to read list of services", zap.Error(err))
-				continue
+				break
 			}
 
 			procs := make(map[string]*Process)
@@ -111,20 +121,38 @@ func (m *Monitor) Start(path string) error {
 			}
 
 		case event, ok := <-m.procsEventCh:
+			// Restart the loop, I'm not interested in the speed measurement.
+			// Measuring the speed in this case would taint the average value.
 			if !ok {
 				continue
 			}
+
+			speedMeasurement = &speedProcEvents
+			speedMeasurement.Start()
+
 			switch e := event.(type) {
 			case processStatusEvent:
-				m.logger.Debug("update link", zap.Reflect("event", e))
+				if writer := m.logger.Check(zap.DebugLevel, "event"); writer != nil {
+					writer.Write(zap.Reflect("event", e))
+				}
 				m.updateOnlineLinks(e)
 				m.updateLinksDB(e)
 			case processStoppedEvent:
 				m.deleteOnlineLinks(e)
 			}
+
 		case <-m.stopCh:
 			m.logger.Info("stopped", zap.String("reason", "stop request"))
 			return nil
+		}
+
+		speedMeasurement.Stop()
+
+		if ce := m.logger.Check(zap.DebugLevel, "average loop speed"); ce != nil {
+			ce.Write(
+				zap.String("heartbeat", speedHeartbeat.Average().String()),
+				zap.String("events", speedProcEvents.Average().String()),
+			)
 		}
 	}
 }

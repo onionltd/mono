@@ -94,7 +94,6 @@ func (p *Process) Start(serviceID string) {
 			}
 
 			for i := range obsoleteWorkers {
-				//p.logger.Debug("destroy obsolete worker", zap.String("workerID", obsoleteWorkers[i]))
 				p.destroyWorker(obsoleteWorkers[i])
 			}
 

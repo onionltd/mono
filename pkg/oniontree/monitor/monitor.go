@@ -34,6 +34,31 @@ func (m *Monitor) Start(path string) error {
 	}
 	m.ot = ot
 
+	listServices := func() ([]string, error) {
+		services, err := m.ot.List()
+		if err != nil {
+			return nil, err
+		}
+		tag, err := m.ot.GetTag("dead")
+		if err != nil {
+			if err != oniontree.ErrIdNotExists {
+				return nil, err
+			}
+			return services, nil
+		}
+		deadServices := tag.Services
+		filtered := make([]string, 0, len(services)-len(deadServices))
+		for _, deadService := range deadServices {
+			for i := range services {
+				if deadService == services[i] {
+					continue
+				}
+				filtered = append(filtered, services[i])
+			}
+		}
+		return filtered, nil
+	}
+
 	workerConnSem = semaphore.NewWeighted(m.config.WorkerTCPConnectionsMax)
 
 	m.logger.Info("started", zap.String("path", path), zap.Reflect("config", m.config))
@@ -82,7 +107,7 @@ func (m *Monitor) Start(path string) error {
 			speedMeasurement.Start()
 
 			timeout = m.config.MonitorHeartbeat
-			serviceIDs, err := m.ot.List()
+			serviceIDs, err := listServices()
 			if err != nil {
 				m.logger.Warn("failed to read list of services", zap.Error(err))
 				break
@@ -105,7 +130,6 @@ func (m *Monitor) Start(path string) error {
 			}
 
 			for i := range obsoleteProcs {
-				//m.logger.Debug("destroy obsolete process", zap.String("processID", obsoleteProcs[i]))
 				m.destroyProcess(obsoleteProcs[i])
 			}
 

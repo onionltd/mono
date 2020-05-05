@@ -1,0 +1,3 @@
+---
+hxxpbeam_image: localhost/hxxpbeam:master-f15ad00
+httpd_image: localhost/httpd:master-f15ad00

@@ -1,0 +1,5 @@
+---
+- name: Restart stack
+  systemd:
+    name: docker-compose@{{ stack }}.service
+    state: restarted

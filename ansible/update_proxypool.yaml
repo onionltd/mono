@@ -1,0 +1,14 @@
+---
+- hosts: proxypool
+  roles:
+    - role: common_handlers
+      vars:
+        stack: proxypool
+
+    - role: docker_update_image
+      vars:
+        image: "{{ tor_image }}"
+
+    - role: docker_update_image
+      vars:
+        image: "{{ vanguards_image }}"

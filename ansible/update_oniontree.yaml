@@ -1,0 +1,26 @@
+---
+- hosts: oniontree
+  roles:
+    - role: common_handlers
+      vars:
+        stack: oniontree
+
+    - role: docker_update_image
+      vars:
+        image: "{{ tor_image }}"
+
+    - role: docker_update_image
+      vars:
+        image: "{{ vanguards_image }}"
+
+    - role: docker_update_image
+      vars:
+        image: "{{ httpd_image }}"
+
+    - role: docker_update_image
+      vars:
+        image: "{{ hxxpbeam_image }}"
+
+    - role: docker_update_image
+      vars:
+        image: "{{ gitsync_image }}"

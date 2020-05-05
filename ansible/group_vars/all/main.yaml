@@ -1,0 +1,4 @@
+---
+tor_image: localhost/tor-hidden-service:v0.4.2.7
+vanguards_image: localhost/vanguards:latest
+gitsync_image: localhost/gitsync:master-f15ad00

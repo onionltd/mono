@@ -1,0 +1,34 @@
+---
+- name: Create a temporary file
+  tempfile:
+    state: file
+  register: tmpfile
+
+- name: Save the image {{ image }}
+  docker_image:
+    name: "{{ image }}"
+    archive_path: "{{ tmpfile.path }}"
+    state: present
+
+- name: Upload the image {{ image }}
+  copy:
+    src: "{{ tmpfile.path }}"
+    dest: "{{ tmpfile.path }}"
+
+- name: Load the image {{ image }}
+  docker_image:
+    name: "{{ image }}"
+    load_path: "{{ tmpfile.path }}"
+    state: present
+  notify: Restart stack
+
+- name: Tag the image {{ image }}
+  docker_image:
+    name: "{{ image }}"
+    repository: "{{ image.split(':')[0] }}:latest"
+  notify: Restart stack
+
+- name: Remove the temporary file
+  file:
+    path: "{{ tmpfile.path }}"
+    state: absent

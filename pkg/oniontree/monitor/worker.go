@@ -28,6 +28,9 @@ func (w *Worker) Start(url string) {
 
 	// If worker exits, notify process that link is offline.
 	defer func() {
+		if r := recover(); r != nil {
+			w.logger.Error("panicking", zap.Reflect("reason", r))
+		}
 		w.sendEvent(workerStatusEvent{
 			Status: StatusOffline,
 			URL:    url,

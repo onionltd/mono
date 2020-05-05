@@ -27,6 +27,9 @@ func (p *Process) Start(serviceID string) {
 
 	// Do a proper clean up
 	defer func() {
+		if r := recover(); r != nil {
+			p.logger.Error("panicking", zap.Reflect("reason", r))
+		}
 		p.logger.Debug("cleaning up running workers")
 		for url := range p.workers {
 			p.destroyWorker(url)

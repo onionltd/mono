@@ -38,6 +38,9 @@ func (m *Monitor) Start(path string) error {
 	m.logger.Info("started", zap.String("path", path), zap.Reflect("config", m.config))
 
 	defer func() {
+		if r := recover(); r != nil {
+			m.logger.Error("panicking", zap.Reflect("reason", r))
+		}
 		m.logger.Debug("cleaning up running processes")
 		for url := range m.procs {
 			m.destroyProcess(url)

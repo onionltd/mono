@@ -1,5 +1,6 @@
 ---
 - hosts: oniontree
+  gather_facts: no
   roles:
     - role: common_handlers
       vars:

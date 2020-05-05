@@ -8,16 +8,11 @@ import (
 	"time"
 )
 
-// statusCount must must be an odd number!
-const statusCount = 7
-
 type Worker struct {
-	logger        *zap.Logger
-	config        WorkerConfig
-	status        [statusCount]Status
-	statusCounter int
-	stopCh        chan int
-	eventCh       chan<- interface{}
+	logger  *zap.Logger
+	config  WorkerConfig
+	stopCh  chan int
+	eventCh chan<- interface{}
 
 	// This context is used to cancel undergoing HTTP request.
 	ctxReq       context.Context
@@ -73,8 +68,6 @@ func (w *Worker) ping(ctx context.Context, host string) (status Status) {
 	default:
 		status = StatusOffline
 	}
-	w.status[w.statusCounter] = status
-	w.statusCounter = (w.statusCounter + 1) % statusCount
 	return
 }
 

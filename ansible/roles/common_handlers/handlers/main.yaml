@@ -3,3 +3,4 @@
   systemd:
     name: docker-compose@{{ stack }}.service
     state: restarted
+  become: yes

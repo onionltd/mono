@@ -21,7 +21,6 @@ func gitVerifyHeadCommitSignature(repo *git.Repository, armoredKeyRing string) e
 func gitCloneOrOpen(cfg *config) (*git.Repository, error) {
 	repo, err := git.PlainClone(cfg.OutputDir, false, &git.CloneOptions{
 		URL:           cfg.Repository,
-		ReferenceName: "HEAD",
 		SingleBranch:  true,
 		Depth:         cfg.CloneDepth,
 	})
@@ -34,14 +33,14 @@ func gitCloneOrOpen(cfg *config) (*git.Repository, error) {
 	return repo, err
 }
 
-func gitPullChanges(repo *git.Repository) error {
+func gitPullChanges(repo *git.Repository, cfg *config) error {
 	wt, err := repo.Worktree()
 	if err != nil {
 		return err
 	}
 	return wt.Pull(&git.PullOptions{
-		ReferenceName: "HEAD",
 		SingleBranch:  true,
+		Depth:         cfg.CloneDepth,
 		Force:         true,
 	})
 }

@@ -55,7 +55,7 @@ func run() error {
 		for {
 			select {
 			case <-time.After(t):
-				if err := gitPullChanges(repo); err != nil {
+				if err := gitPullChanges(repo, cfg); err != nil {
 					rootLogger.Info("pull changes", zap.Error(err))
 				}
 				if !cfg.NoVerifySignature {

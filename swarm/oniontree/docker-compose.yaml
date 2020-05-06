@@ -143,7 +143,9 @@ networks:
 volumes:
   oniontree.tor_hs.keys:
   oniontree.httpd.data.ro:
+    external: true
   oniontree.hxxpbeam.data.ro:
+    external: true
   oniontree.gitsync.data.ro:
     external: true
 

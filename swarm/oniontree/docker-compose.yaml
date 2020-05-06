@@ -104,7 +104,6 @@ services:
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/onionltd.foo.onion.git
       REPOSITORY_SYNC_INTERVAL: 5m
-      REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/www
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt
@@ -123,7 +122,6 @@ services:
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git
       REPOSITORY_SYNC_INTERVAL: 5m
-      REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/oniontree
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt

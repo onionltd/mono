@@ -9,19 +9,29 @@
     - role: docker_update_image
       vars:
         image: "{{ tor_image }}"
+      tags:
+        - tor
 
     - role: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
+      tags:
+        - vanguards
 
     - role: docker_update_image
       vars:
         image: "{{ httpd_image }}"
+      tags:
+        - httpd
 
     - role: docker_update_image
       vars:
         image: "{{ hxxpbeam_image }}"
+      tags:
+        - hxxpbeam
 
     - role: docker_update_image
       vars:
         image: "{{ gitsync_image }}"
+      tags:
+        - gitsync

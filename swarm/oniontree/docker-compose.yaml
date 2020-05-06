@@ -90,7 +90,6 @@ services:
       MONITOR_CONNECTIONS_MAX: 64
       MONITOR_PING_INTERVAL: 10m
       MONITOR_PING_TIMEOUT: 50s
-      LOG_LEVEL: debug
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:

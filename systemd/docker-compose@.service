@@ -5,7 +5,6 @@ After=docker.service
 
 [Service]
 User=user
-Restart=always
 
 WorkingDirectory=/opt/%i
 

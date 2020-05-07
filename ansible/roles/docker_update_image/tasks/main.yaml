@@ -23,17 +23,6 @@
     state: present
   notify: Restart stack
 
-- name: Untag the image {{ image.split(':')[0] }}:latest
-  docker_image:
-    name: "{{ image.split(':')[0] }}:latest"
-    state: absent
-
-- name: Tag the image {{ image.split(':')[0] }}:latest
-  docker_image:
-    name: "{{ image }}"
-    repository: "{{ image.split(':')[0] }}:latest"
-  notify: Restart stack
-
 - name: Remove the temporary file
   file:
     path: "{{ tmpfile.path }}"

@@ -106,8 +106,8 @@ networks:
 
 volumes:
   vworp.tor_hs.keys:
-  vworp.tor_proxy.keys:
   vworp.vworp.data.ro:
+    external: true
   vworp.vworp.data.rw:
     external: true
   vworp.gitsync.data.ro:

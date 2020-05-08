@@ -114,4 +114,4 @@ volumes:
 
 secrets:
   vworp:
-    file: ./secrets/vworp/hs_ed25519_secret_key
+    file: ./secrets/vworp/private_key

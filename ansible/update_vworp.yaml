@@ -1,0 +1,31 @@
+---
+- hosts: vworp
+  gather_facts: no
+  roles:
+    - role: common_handlers
+      vars:
+        stack: vworp
+
+    - role: docker_update_image
+      vars:
+        image: "{{ tor_image }}"
+      tags:
+        - tor
+
+    - role: docker_update_image
+      vars:
+        image: "{{ vanguards_image }}"
+      tags:
+        - vanguards
+
+    - role: docker_update_image
+      vars:
+        image: "{{ vworp_image }}"
+      tags:
+        - vworp
+
+    - role: docker_update_image
+      vars:
+        image: "{{ gitsync_image }}"
+      tags:
+        - gitsync

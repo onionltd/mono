@@ -104,6 +104,11 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusBadRequest))
 		}
 
+		// Force root directory, if not present.
+		if u.Path == "" {
+			u.Path = "/"
+		}
+
 		service, err := s.linksMonitor.GetServiceByURL(
 			fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 		)

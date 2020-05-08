@@ -7,6 +7,10 @@
 
     - role: docker_update_image
       vars:
+        image: "{{ haproxy_image }}"
+
+    - role: docker_update_image
+      vars:
         image: "{{ tor_image }}"
 
     - role: docker_update_image

@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       VWORP_TOR_SERVICE_HOSTS: 80:vworp:8080
-      VWORP_TOR_SERVICE_VERSION: 3
+      VWORP_TOR_SERVICE_VERSION: 2
       TOR_EXTRA_OPTIONS: |
         DataDirectory /var/lib/tor/hidden_service
         ControlPort 0.0.0.0:9051

@@ -86,7 +86,7 @@ services:
     restart: always
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git
-      REPOSITORY_SYNC_INTERVAL: 15m
+      REPOSITORY_SYNC_INTERVAL: 5m
       REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/oniontree
       NO_VERIFY_SIGNATURE: "false"

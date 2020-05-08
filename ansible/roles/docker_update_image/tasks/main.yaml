@@ -1,6 +1,7 @@
 ---
 - name: Create a temporary file
-  tempfile:
+  local_action: tempfile
+  args:
     state: file
   register: tmpfile
 

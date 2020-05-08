@@ -20,9 +20,9 @@ func gitVerifyHeadCommitSignature(repo *git.Repository, armoredKeyRing string) e
 
 func gitCloneOrOpen(cfg *config) (*git.Repository, error) {
 	repo, err := git.PlainClone(cfg.OutputDir, false, &git.CloneOptions{
-		URL:           cfg.Repository,
-		SingleBranch:  true,
-		Depth:         cfg.CloneDepth,
+		URL:          cfg.Repository,
+		SingleBranch: true,
+		Depth:        cfg.CloneDepth,
 	})
 	if err != nil {
 		if err != git.ErrRepositoryAlreadyExists {
@@ -39,8 +39,8 @@ func gitPullChanges(repo *git.Repository, cfg *config) error {
 		return err
 	}
 	return wt.Pull(&git.PullOptions{
-		SingleBranch:  true,
-		Depth:         cfg.CloneDepth,
-		Force:         true,
+		SingleBranch: true,
+		Depth:        cfg.CloneDepth,
+		Force:        true,
 	})
 }

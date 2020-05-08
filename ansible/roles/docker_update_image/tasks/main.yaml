@@ -22,6 +22,7 @@
     name: "{{ image }}"
     load_path: "{{ tmpfile.path }}"
     state: present
+    force: yes
   notify: Restart stack
 
 - name: Remove the temporary file

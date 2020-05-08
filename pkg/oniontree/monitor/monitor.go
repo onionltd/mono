@@ -48,11 +48,15 @@ func (m *Monitor) Start(path string) error {
 		}
 		deadServices := tag.Services
 		filtered := make([]string, 0, len(services)-len(deadServices))
-		for _, deadService := range deadServices {
-			for i := range services {
-				if deadService == services[i] {
-					continue
+		for i := range services {
+			isDead := false
+			for _, deadService := range deadServices {
+				if services[i] == deadService {
+					isDead = true
+					break
 				}
+			}
+			if !isDead {
 				filtered = append(filtered, services[i])
 			}
 		}

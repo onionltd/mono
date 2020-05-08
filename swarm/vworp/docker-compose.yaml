@@ -69,6 +69,9 @@ services:
       TEMPLATES_PATH: /opt/vworp/templates/*.html
       ONIONTREE_PATH: /home/user/data/ro/oniontree
       BADGERDB_PATH: /home/user/data/rw/vworp.db
+      MONITOR_CONNECTIONS_MAX: 64
+      MONITOR_PING_INTERVAL: 10m
+      MONITOR_PING_TIMEOUT: 50s
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:

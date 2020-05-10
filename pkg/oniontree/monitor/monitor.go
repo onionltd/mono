@@ -3,13 +3,14 @@ package monitor
 import (
 	"context"
 	"errors"
+	"github.com/fsnotify/fsnotify"
 	"github.com/onionltd/mono/pkg/oniontree/monitor/speed"
 	"github.com/onionltd/oniontree-tools/pkg/oniontree"
 	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
 	"golang.org/x/sync/semaphore"
+	"path"
 	"sync"
-	"time"
 )
 
 const procsChCapacity = 512
@@ -27,12 +28,24 @@ type Monitor struct {
 	procs        map[string]*Process
 }
 
-func (m *Monitor) Start(path string) error {
-	ot, err := oniontree.Open(path)
+func (m *Monitor) Start(dir string) error {
+	ot, err := oniontree.Open(dir)
 	if err != nil {
 		return err
 	}
 	m.ot = ot
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
+	defer watcher.Close()
+	if err := watcher.Add(path.Join(dir, "unsorted")); err != nil {
+		return err
+	}
+	if err := watcher.Add(path.Join(dir, "tagged/dead")); err != nil {
+		return err
+	}
 
 	listServices := func() ([]string, error) {
 		services, err := m.ot.List()
@@ -63,9 +76,10 @@ func (m *Monitor) Start(path string) error {
 		return filtered, nil
 	}
 
+	m.procsEventCh = make(chan interface{}, procsChCapacity)
 	workerConnSem = semaphore.NewWeighted(m.config.WorkerTCPConnectionsMax)
 
-	m.logger.Info("started", zap.String("path", path), zap.Reflect("config", m.config))
+	m.logger.Info("started", zap.String("dir", dir), zap.Reflect("config", m.config))
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -95,8 +109,25 @@ func (m *Monitor) Start(path string) error {
 		m.deadCh <- 1
 	}()
 
-	m.procsEventCh = make(chan interface{}, procsChCapacity)
-	timeout := time.Duration(0)
+	eventCh := make(chan struct{}, 1)
+	eventCh <- struct{}{}
+
+	go func() {
+		for {
+			select {
+			case e := <-watcher.Events:
+				m.logger.Debug("fsnotify event", zap.String("event", e.String()))
+				eventCh <- struct{}{}
+
+			case <-watcher.Errors:
+				m.logger.Error("fsnotify error", zap.Error(err))
+
+			case <-m.stopCh:
+				m.logger.Debug("fsnotify stopped watching")
+				return
+			}
+		}
+	}()
 
 	var (
 		speedMeasurement *speed.Measurement
@@ -106,11 +137,10 @@ func (m *Monitor) Start(path string) error {
 
 	for {
 		select {
-		case <-time.After(timeout):
+		case <-eventCh:
 			speedMeasurement = &speedHeartbeat
 			speedMeasurement.Start()
 
-			timeout = m.config.MonitorHeartbeat
 			serviceIDs, err := listServices()
 			if err != nil {
 				m.logger.Warn("failed to read list of services", zap.Error(err))

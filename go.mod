@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/dgraph-io/badger/v2 v2.0.3
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/mojocn/base64Captcha v1.3.1

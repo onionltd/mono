@@ -303,7 +303,7 @@ func NewMonitor(logger *zap.Logger, cfg MonitorConfig) *Monitor {
 	return &Monitor{
 		procs:  make(map[string]*Process),
 		stopCh: make(chan int),
-		deadCh: make(chan int),
+		deadCh: make(chan int, 1),
 		logger: logger,
 		config: cfg,
 	}

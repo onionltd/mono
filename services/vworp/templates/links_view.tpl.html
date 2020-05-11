@@ -25,11 +25,11 @@
             destination before being redirected.</p>
 
             <div class="elem">
-                <input type="text" style="width:100%;" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
+                <input type="text" class="links_input" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
             </div>
 
             <div class="elem">
-                <input type="text" style="width:100%;" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}?preview">
+                <input type="text" class="links_input" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}?preview">
             </div>
         {{ else }}
             <h1>Oops</h1>

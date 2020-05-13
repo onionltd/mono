@@ -51,12 +51,6 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		serviceID := c.Param("id")
 		fingerprint := c.Param("fp")
 
-		// GetOnlineLinks is a cheaper operation than GetService, that's why it's called first.
-		online, ok := s.linksMonitor.GetOnlineLinks(serviceID)
-		if !ok {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
-		}
-
 		service, err := s.linksMonitor.GetService(serviceID)
 		if err != nil {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
@@ -75,6 +69,8 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		if link.ServiceID() != service.ID {
 			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
 		}
+
+		online, _ := s.linksMonitor.GetOnlineLinks(serviceID)
 
 		pageContent := pageData{}
 		pageContent.Service = service

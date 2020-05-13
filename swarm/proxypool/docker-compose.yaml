@@ -25,7 +25,7 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 172800
+        MaxCircuitDirtiness 7200
         LearnCircuitBuildTimeout 0
         CircuitBuildTimeout 40
         CircuitStreamTimeout 10
@@ -37,6 +37,7 @@ services:
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
         EnforceDistinctSubnets 0
+        ConnectionPadding 0
     networks:
       proxypool.public:
 
@@ -50,7 +51,7 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 172800
+        MaxCircuitDirtiness 7200
         LearnCircuitBuildTimeout 0
         CircuitBuildTimeout 40
         CircuitStreamTimeout 10
@@ -62,6 +63,7 @@ services:
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
         EnforceDistinctSubnets 0
+        ConnectionPadding 0
     networks:
       proxypool.public:
 
@@ -75,7 +77,7 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 172800
+        MaxCircuitDirtiness 7200
         LearnCircuitBuildTimeout 0
         CircuitBuildTimeout 40
         CircuitStreamTimeout 10
@@ -87,6 +89,7 @@ services:
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
         EnforceDistinctSubnets 0
+        ConnectionPadding 0
     networks:
       proxypool.public:
 
@@ -100,7 +103,7 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 172800
+        MaxCircuitDirtiness 7200
         LearnCircuitBuildTimeout 0
         CircuitBuildTimeout 40
         CircuitStreamTimeout 10
@@ -112,6 +115,7 @@ services:
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
         EnforceDistinctSubnets 0
+        ConnectionPadding 0
     networks:
       proxypool.public:
 
@@ -125,7 +129,7 @@ services:
         ControlPort 0.0.0.0:9051
         HashedControlPassword 16:AD24C66CB51CFF37600A296F5E2FDF51BA0BBFE19DB4D2786BF5FA7E5D
         MaxClientCircuitsPending 1024
-        MaxCircuitDirtiness 172800
+        MaxCircuitDirtiness 7200
         LearnCircuitBuildTimeout 0
         CircuitBuildTimeout 40
         CircuitStreamTimeout 10
@@ -137,6 +141,7 @@ services:
         # Disable Safe Logging (for debugging purpose, during the analysis of performance improvements)
         SafeLogging 0
         EnforceDistinctSubnets 0
+        ConnectionPadding 0
     networks:
       proxypool.public:
 networks:

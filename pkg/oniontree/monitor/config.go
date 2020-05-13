@@ -3,13 +3,19 @@ package monitor
 import "time"
 
 type WorkerConfig struct {
-	PingInterval time.Duration
-	PingTimeout  time.Duration
+	PingInterval      time.Duration
+	PingTimeout       time.Duration
+	PingPause         time.Duration
+	PingRetryInterval time.Duration
+	PingRetryAttempts int
 }
 
 var DefaultWorkerConfig = WorkerConfig{
-	PingInterval: 1 * time.Minute,
-	PingTimeout:  25 * time.Second,
+	PingInterval:      1 * time.Minute,
+	PingTimeout:       50 * time.Second,
+	PingPause:         5 * time.Minute,
+	PingRetryInterval: 10 * time.Second,
+	PingRetryAttempts: 3,
 }
 
 type MonitorConfig struct {

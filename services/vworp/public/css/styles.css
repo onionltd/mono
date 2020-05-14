@@ -73,11 +73,16 @@
     text-align:justify;
 }
 
+.links_input {
+    padding:0;
+    width:100%;
+}
+
 body {
     width:48%;
     margin:0 auto;
     color:#202224;
-    font-family:Roboto, Arial;
+    font-family:Tahoma, Geneva, sans-serif;
     font-size:115%;
 }
 
@@ -117,8 +122,9 @@ h1, h2, h3, h4 {
     padding:0;
 }
 
-.links_input {
-    padding:0;
-    width:100%;
+input[type=text],
+input[type=submit]{
+    font-size:110%;
+    color:inherit;
     box-sizing:border-box;
 }

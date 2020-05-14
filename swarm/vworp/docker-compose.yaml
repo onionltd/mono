@@ -69,8 +69,8 @@ services:
       TEMPLATES_PATH: /opt/vworp/templates/*.html
       ONIONTREE_PATH: /home/user/data/ro/oniontree
       BADGERDB_PATH: /home/user/data/rw/vworp.db
-      MONITOR_CONNECTIONS_MAX: 64
-      MONITOR_PING_INTERVAL: 10m
+      MONITOR_CONNECTIONS_MAX: 24
+      MONITOR_PING_INTERVAL: 1m
       MONITOR_PING_TIMEOUT: 50s
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
@@ -87,7 +87,6 @@ services:
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git
       REPOSITORY_SYNC_INTERVAL: 5m
-      REPOSITORY_SYNC_DEPTH: 1
       OUTPUT_PATH: /home/user/data/rw/oniontree
       NO_VERIFY_SIGNATURE: "false"
       PGP_KEYRING: /home/user/data/ro/pgp.txt

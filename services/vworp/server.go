@@ -14,6 +14,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -47,6 +48,11 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		}
 		return false
 	}
+	sortAddressesV3First := func(addrs []string) {
+		sort.SliceStable(addrs, func(i, j int) bool {
+			return len(addrs[i]) > len(addrs[j])
+		})
+	}
 	return func(c echo.Context) error {
 		serviceID := c.Param("id")
 		fingerprint := c.Param("fp")
@@ -71,6 +77,7 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		}
 
 		online, _ := s.linksMonitor.GetOnlineLinks(serviceID)
+		sortAddressesV3First(online)
 
 		pageContent := pageData{}
 		pageContent.Service = service

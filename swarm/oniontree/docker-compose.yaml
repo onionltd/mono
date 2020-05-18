@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   tor_hs:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       HTTPD_TOR_SERVICE_HOSTS: 80:httpd:8080

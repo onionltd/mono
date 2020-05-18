@@ -16,7 +16,7 @@ services:
       - tor_proxy_3
 
   tor_proxy_1:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
@@ -42,7 +42,7 @@ services:
       proxypool.public:
 
   tor_proxy_2:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
@@ -68,7 +68,7 @@ services:
       proxypool.public:
 
   tor_proxy_3:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
@@ -94,7 +94,7 @@ services:
       proxypool.public:
 
   tor_proxy_4:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
@@ -120,7 +120,7 @@ services:
       proxypool.public:
 
   tor_proxy_5:
-    image: localhost/tor-hidden-service:v0.4.2.7
+    image: localhost/tor-hidden-service:v0.4.3.5
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort

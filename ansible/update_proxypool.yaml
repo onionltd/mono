@@ -8,11 +8,17 @@
     - role: docker_update_image
       vars:
         image: "{{ haproxy_image }}"
+      tags:
+        - haproxy
 
     - role: docker_update_image
       vars:
         image: "{{ tor_image }}"
+      tags:
+        - tor
 
     - role: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
+      tags:
+        - vanguards

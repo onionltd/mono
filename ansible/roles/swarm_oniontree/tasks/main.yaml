@@ -26,7 +26,7 @@
   notify: Restart stack
 
 - name: Copy docker-compose.yaml
-  copy:
+  template:
     src: docker-compose.yaml
     dest: /opt/oniontree/docker-compose.yaml
   notify: Restart stack

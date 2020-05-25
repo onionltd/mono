@@ -73,6 +73,7 @@ services:
       WWW_PATH: /home/user/data/ro/www
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
+      PROMETHEUS_METRICS_AUTH: "{{ prometheus_metrics_auth }}"
     networks:
       oniontree.public:
       proxypool.public:

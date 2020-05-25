@@ -1,0 +1,32 @@
+---
+- name: Make directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: user
+    group: users
+  with_items:
+    - /opt/oniontree
+    - /opt/oniontree/secrets
+    - /opt/oniontree/secrets/httpd
+    - /opt/oniontree/secrets/hxxpbeam
+  become: yes
+  notify: Restart stack
+
+- name: Copy httpd private key
+  copy:
+    content: "{{ swarm_oniontree_httpd_private_key }}"
+    dest: /opt/oniontree/secrets/httpd/private_key
+  notify: Restart stack
+
+- name: Copy hxxpbeam private key
+  copy:
+    content: "{{ swarm_oniontree_hxxpbeam_private_key | b64decode }}"
+    dest: /opt/oniontree/secrets/hxxpbeam/hs_ed25519_secret_key
+  notify: Restart stack
+
+- name: Copy docker-compose.yaml
+  copy:
+    src: docker-compose.yaml
+    dest: /opt/oniontree/docker-compose.yaml
+  notify: Restart stack

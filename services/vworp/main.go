@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mojocn/base64Captcha"
 	captcha "github.com/onionltd/mono/pkg/base64captcha"
+	echoerrors "github.com/onionltd/mono/pkg/echo/errors"
 	loggermw "github.com/onionltd/mono/pkg/echo/middleware/logger"
 	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	zaputil "github.com/onionltd/mono/pkg/utils/zap"
@@ -124,13 +125,7 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.HidePort = true
 	e.Renderer = t
 	e.Use(loggermw.WithConfig(logger))
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		code := http.StatusInternalServerError
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
-		}
-		_ = c.String(code, fmt.Sprintf("%d %s", code, http.StatusText(code)))
-	}
+	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
 	return e
 }
 

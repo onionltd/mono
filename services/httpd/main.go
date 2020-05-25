@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
+	echoerrors "github.com/onionltd/mono/pkg/echo/errors"
 	loggermw "github.com/onionltd/mono/pkg/echo/middleware/logger"
 	zaputil "github.com/onionltd/mono/pkg/utils/zap"
 	"go.uber.org/zap"
@@ -82,13 +83,7 @@ func setupRouter(logger *zap.Logger) *echo.Echo {
 	e.HideBanner = true
 	e.HidePort = true
 	e.Use(loggermw.WithConfig(logger))
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		code := http.StatusInternalServerError
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
-		}
-		_ = c.String(code, fmt.Sprintf("%d %s", code, http.StatusText(code)))
-	}
+	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
 	return e
 }
 

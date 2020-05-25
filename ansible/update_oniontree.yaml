@@ -35,3 +35,7 @@
         image: "{{ gitsync_image }}"
       tags:
         - gitsync
+
+    - role: swarm_oniontree
+      tags:
+        - swarm

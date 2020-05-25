@@ -7,12 +7,11 @@ import (
 	"github.com/labstack/echo/v4"
 	loggermw "github.com/onionltd/mono/pkg/echo/middleware/logger"
 	"github.com/onionltd/mono/pkg/oniontree/monitor"
+	zaputil "github.com/onionltd/mono/pkg/utils/zap"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"time"
 )
@@ -86,39 +85,7 @@ func setupConfig() (*config, error) {
 }
 
 func setupLogger(cfg *config) (*zap.Logger, error) {
-	translateLogLevel := func(s string) zapcore.Level {
-		switch strings.ToLower(s) {
-		case "debug":
-			return zap.DebugLevel
-		case "info":
-			return zap.InfoLevel
-		case "warning":
-			return zap.WarnLevel
-		case "error":
-			return zap.ErrorLevel
-		default:
-			return zap.InfoLevel
-		}
-	}
-	logLevel := translateLogLevel(cfg.LogLevel)
-	return zap.Config{
-		Encoding:         "console",
-		Level:            zap.NewAtomicLevelAt(logLevel),
-		OutputPaths:      []string{"stderr"},
-		ErrorOutputPaths: []string{"stderr"},
-		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey: "message",
-
-			LevelKey:    "level",
-			EncodeLevel: zapcore.CapitalLevelEncoder,
-
-			TimeKey:    "time",
-			EncodeTime: zapcore.ISO8601TimeEncoder,
-
-			NameKey:    "name",
-			EncodeName: zapcore.FullNameEncoder,
-		},
-	}.Build()
+	return zaputil.DefaultConfigWithLogLevel(cfg.LogLevel).Build()
 }
 
 func setupRouter(logger *zap.Logger) *echo.Echo {

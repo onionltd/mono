@@ -1,4 +1,4 @@
-package basicauth
+package auth
 
 import (
 	"crypto/subtle"
@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func WithConfig(username, password string) echo.MiddlewareFunc {
+func BasicAuthWithConfig(username, password string) echo.MiddlewareFunc {
 	if username == "" || password == "" {
 		return noOp()
 	}
@@ -17,12 +17,4 @@ func WithConfig(username, password string) echo.MiddlewareFunc {
 		}
 		return false, nil
 	})
-}
-
-func noOp() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			return next(c)
-		}
-	}
 }

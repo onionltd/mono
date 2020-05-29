@@ -29,3 +29,7 @@
         image: "{{ gitsync_image }}"
       tags:
         - gitsync
+
+    - role: swarm_vworp
+      tags:
+        - swarm

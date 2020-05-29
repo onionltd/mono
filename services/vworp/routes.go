@@ -1,6 +1,11 @@
 package main
 
-import serverutils "github.com/onionltd/mono/pkg/echo/server"
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/onionltd/mono/pkg/echo/middleware/auth"
+	serverutils "github.com/onionltd/mono/pkg/echo/server"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
 
 func (s *server) routes() {
 	s.router.GET("/", s.handlePage("home"))
@@ -9,6 +14,12 @@ func (s *server) routes() {
 	s.router.GET("/dyk", s.handlePage("dyk"))
 	s.router.GET("/help", s.handlePage("help"))
 	s.router.GET("/health", serverutils.HandleHealthCheck())
+	s.router.GET("/metrics",
+		echo.WrapHandler(promhttp.Handler()),
+		auth.KeyAuthWithConfig(
+			string(s.config.PromMetricsAuth),
+		),
+	)
 
 	s.router.POST("/links/new", s.handleLinksNew(), s.solveCaptcha())
 	s.router.GET("/links/oops/:id", s.handleLinksOops(s.oopsSet["/links/oops/:id"], true))

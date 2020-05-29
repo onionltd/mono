@@ -6,6 +6,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 	"github.com/dgraph-io/badger/v2/options"
 	"github.com/jessevdk/go-flags"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/mojocn/base64Captcha"
 	captcha "github.com/onionltd/mono/pkg/base64captcha"
@@ -48,6 +49,9 @@ func run() error {
 	mon := setupMonitor(rootLogger.Named("monitor"), cfg)
 
 	router := setupRouter(httpdLogger, templates)
+
+	// Setup prometheus metrics
+	setupRouterMetrics(router)
 
 	server := server{
 		logger:       httpdLogger,
@@ -127,6 +131,14 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.Use(loggermw.WithConfig(logger))
 	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
 	return e
+}
+
+func setupRouterMetrics(e *echo.Echo) {
+	p := prometheus.NewPrometheus("httpd", nil)
+	p.RequestCounterURLLabelMappingFunc = func(c echo.Context) string {
+		return c.Request().RequestURI
+	}
+	p.Use(e)
 }
 
 func setupBadger(cfg *config) (*badger.DB, error) {

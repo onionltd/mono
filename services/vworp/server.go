@@ -53,27 +53,30 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 			return len(addrs[i]) > len(addrs[j])
 		})
 	}
+	oops := func(c echo.Context, code int, showSubmitForm bool) error {
+		return s.handleOops(&code, false)(c)
+	}
 	return func(c echo.Context) error {
 		serviceID := c.Param("id")
 		fingerprint := c.Param("fp")
 
 		service, err := s.linksMonitor.GetService(serviceID)
 		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
+			return oops(c, http.StatusNotFound, false)
 		}
 
 		key := links.NewKey(fingerprint)
 		link := &links.Link{}
 		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
-				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
+				return oops(c, http.StatusNotFound, false)
 			}
 			s.logger.Error("failed to read the database", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusInternalServerError))
+			return oops(c, http.StatusInternalServerError, false)
 		}
 
 		if link.ServiceID() != service.ID {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/to/oops/%d", http.StatusNotFound))
+			return oops(c, http.StatusNotFound, false)
 		}
 
 		online, _ := s.linksMonitor.GetOnlineLinks(serviceID)
@@ -99,12 +102,15 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 }
 
 func (s *server) handleLinksNew() echo.HandlerFunc {
+	oops := func(c echo.Context, code int) error {
+		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", code))
+	}
 	return func(c echo.Context) error {
 		u, err := url.Parse(
 			strings.TrimSpace(c.FormValue("link")),
 		)
 		if err != nil || u.Scheme == "" || u.Host == "" {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusBadRequest))
+			return oops(c, http.StatusBadRequest)
 		}
 
 		// Force root directory, if not present.
@@ -116,12 +122,12 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 			fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 		)
 		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusNotFound))
+			return oops(c, http.StatusNotFound)
 		}
 
 		// Someone just pasted a vworp! link
 		if service.ID == "vworp" {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusNotAcceptable))
+			return oops(c, http.StatusNotAcceptable)
 		}
 
 		path := (&url.URL{
@@ -133,12 +139,12 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 		link, err := links.NewLink(service.ID, path)
 		if err != nil {
 			s.logger.Error("failed to create a new link", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusInternalServerError))
+			return oops(c, http.StatusInternalServerError)
 		}
 
 		if err := s.badgerDB.Update(badgerutil.Store(link)); err != nil {
 			s.logger.Error("failed to update the database", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/oops/%d", http.StatusInternalServerError))
+			return oops(c, http.StatusInternalServerError)
 		}
 
 		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/links/%s?new", link.Fingerprint()))
@@ -163,6 +169,9 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 		}
 		return ""
 	}
+	oops := func(c echo.Context, code int, showSubmitForm bool) error {
+		return s.handleOops(&code, false)(c)
+	}
 	return func(c echo.Context) error {
 		fingerprint := c.Param("fp")
 
@@ -170,15 +179,15 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 		link := &links.Link{}
 		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
-				return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusNotFound))
+				return oops(c, http.StatusNotFound, false)
 			}
 			s.logger.Error("failed to read the database", zap.Error(err))
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusInternalServerError))
+			return oops(c, http.StatusInternalServerError, false)
 		}
 
 		service, err := s.linksMonitor.GetService(link.ServiceID())
 		if err != nil {
-			return c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/oops/%d", fingerprint, http.StatusNotFound))
+			return oops(c, http.StatusNotFound, false)
 		}
 
 		pageContent := pageData{}
@@ -191,23 +200,31 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 	}
 }
 
-func (s *server) handleLinksOops(oopsMessages oopsMessages, showSubmitForm bool) echo.HandlerFunc {
-	type pageData struct {
+func (s *server) handleOops(oopsID *int, showSubmitForm bool) echo.HandlerFunc {
+	type oopsPageContent struct {
 		OopsMessage    string
 		ShowSubmitForm bool
 	}
-	idToOopsMessage := func(val string) string {
-		num, err := strconv.Atoi(val)
-		if err != nil {
-			num = 0
+	newOopsPageContent := func(c echo.Context, code int, showSubmitForm bool) oopsPageContent {
+		oopsSet := s.oopsSet[c.Path()]
+		return oopsPageContent{
+			OopsMessage: oopsSet.Get(code),
 		}
-		return oopsMessages.Get(num)
+	}
+	deduceStatusCode := func(oopsID int) int {
+		if http.StatusText(oopsID) == "" {
+			return http.StatusOK
+		}
+		return oopsID
 	}
 	return func(c echo.Context) error {
-		pageContent := pageData{}
-		pageContent.ShowSubmitForm = showSubmitForm
-		pageContent.OopsMessage = idToOopsMessage(c.Param("id"))
-		return c.Render(http.StatusOK, "links_oops", pageContent)
+		var code int
+		if oopsID != nil {
+			code = *oopsID
+		} else {
+			code, _ = strconv.Atoi(c.Param("id"))
+		}
+		return c.Render(deduceStatusCode(code), "oops", newOopsPageContent(c, code, showSubmitForm))
 	}
 }
 

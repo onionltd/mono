@@ -22,12 +22,10 @@ func (s *server) routes() {
 	)
 
 	s.router.POST("/links/new", s.handleLinksNew(), s.solveCaptcha())
-	s.router.GET("/links/oops/:id", s.handleLinksOops(s.oopsSet["/links/oops/:id"], true))
+	s.router.GET("/links/oops/:id", s.handleOops(nil, true))
 	s.router.GET("/links/:fp", s.handleLinksView())
-	s.router.GET("/links/:fp/oops/:id", s.handleLinksOops(s.oopsSet["/links/:fp/oops/:id"], false))
 
 	s.router.GET("/to/:id/:fp", s.handleRedirect())
-	s.router.GET("/to/oops/:id", s.handleLinksOops(s.oopsSet["/to/oops/:id"], false))
 
 	s.router.GET("/sorry", s.handleCaptcha())
 

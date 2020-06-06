@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type server struct {
@@ -242,6 +243,35 @@ func (s *server) handleCaptcha() echo.HandlerFunc {
 		pageContent.CaptchaBase64 = template.URL(b64)
 		pageContent.QueryParams = c.QueryParams()
 		return c.Render(http.StatusOK, "captcha", pageContent)
+	}
+}
+
+func (s *server) handleBackupBadgerDB() echo.HandlerFunc {
+	newBackupFilename := func() string {
+		return fmt.Sprintf("backup-%s.dat", time.Now().Format("2006-01-02_1504"))
+	}
+	setContentDisposition := func(resp *echo.Response, filename string) {
+		v := fmt.Sprintf("attachment; filename=\"%s\"", filename)
+		resp.Header().Set("Content-Disposition", v)
+	}
+	return func(c echo.Context) error {
+		since := c.QueryParam("since")
+		if since == "" {
+			since = "0"
+		}
+		tsSince, err := strconv.ParseUint(since, 10, 64)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "query parameter `since` is not a timestamp")
+		}
+
+		// Set Content-Disposition header
+		setContentDisposition(c.Response(), newBackupFilename())
+
+		if _, err := s.badgerDB.Backup(c.Response().Writer, tsSince); err != nil {
+			s.logger.Error("failed to backup the badger database", zap.Error(err))
+			return err
+		}
+		return nil
 	}
 }
 

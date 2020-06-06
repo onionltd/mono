@@ -20,6 +20,12 @@ func (s *server) routes() {
 			string(s.config.PromMetricsAuth),
 		),
 	)
+	s.router.GET("/backup/badgerdb",
+		s.handleBackupBadgerDB(),
+		auth.KeyAuthWithConfig(
+			string(s.config.BackupAuth),
+		),
+	)
 
 	s.router.POST("/links/new", s.handleLinksNew(), s.solveCaptcha())
 	s.router.GET("/links/oops/:id", s.handleOops(nil, true))

@@ -1,43 +1,51 @@
 ---
 - hosts: vworp
   gather_facts: no
-  roles:
-    - role: common_handlers
+  tasks:
+    - import_role:
+        name: common_handlers
       vars:
         stack: vworp
 
-    - role: common_handlers
+    - import_role:
+        name: common_handlers
       vars:
         stack: proxypool
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ tor_image }}"
       tags:
         - tor
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
       tags:
         - vanguards
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ vworp_image }}"
       tags:
         - vworp
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ gitsync_image }}"
       tags:
         - gitsync
 
-    - role: swarm_proxypool
+    - import_role:
+        name: swarm_proxypool
       tags:
         - proxypool
 
-    - role: swarm_vworp
+    - import_role:
+        name: swarm_vworp
       tags:
         - swarm

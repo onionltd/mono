@@ -6,6 +6,10 @@
       vars:
         stack: vworp
 
+    - role: common_handlers
+      vars:
+        stack: proxypool
+
     - role: docker_update_image
       vars:
         image: "{{ tor_image }}"
@@ -29,6 +33,10 @@
         image: "{{ gitsync_image }}"
       tags:
         - gitsync
+
+    - role: swarm_proxypool
+      tags:
+        - proxypool
 
     - role: swarm_vworp
       tags:

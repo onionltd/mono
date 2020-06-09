@@ -10,16 +10,16 @@
     - /opt/vworp/secrets
     - /opt/vworp/secrets/vworp
   become: yes
-  notify: Restart stack
+  notify: Restart stack vworp
 
 - name: Copy vworp private key
   copy:
     content: "{{ swarm_vworp_vworp_private_key }}"
     dest: /opt/vworp/secrets/vworp/private_key
-  notify: Restart stack
+  notify: Restart stack vworp
 
 - name: Copy docker-compose.yaml
   template:
     src: docker-compose.yaml
     dest: /opt/vworp/docker-compose.yaml
-  notify: Restart stack
+  notify: Restart stack vworp

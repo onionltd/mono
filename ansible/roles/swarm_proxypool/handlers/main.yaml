@@ -1,0 +1,6 @@
+---
+- name: Restart stack proxypool
+  systemd:
+    name: docker-compose@proxypool.service
+    state: restarted
+  become: yes

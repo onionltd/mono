@@ -1,0 +1,6 @@
+---
+- name: Restart stack oniontree
+  systemd:
+    name: docker-compose@oniontree.service
+    state: restarted
+  become: yes

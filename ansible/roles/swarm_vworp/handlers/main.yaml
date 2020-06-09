@@ -1,0 +1,6 @@
+---
+- name: Restart stack vworp
+  systemd:
+    name: docker-compose@vworp.service
+    state: restarted
+  become: yes

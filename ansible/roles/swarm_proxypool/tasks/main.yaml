@@ -9,16 +9,16 @@
     - /opt/proxypool
     - /opt/proxypool/config
   become: yes
-  notify: Restart stack
+  notify: Restart stack proxypool
 
 - name: Copy haproxy.cfg
   template:
     src: haproxy.cfg
     dest: /opt/proxypool/config/haproxy.cfg
-  notify: Restart stack
+  notify: Restart stack proxypool
 
 - name: Copy docker-compose.yaml
   template:
     src: docker-compose.yaml
     dest: /opt/proxypool/docker-compose.yaml
-  notify: Restart stack
+  notify: Restart stack proxypool

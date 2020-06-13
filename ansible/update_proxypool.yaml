@@ -24,3 +24,8 @@
       notify: Restart stack proxypool
       tags:
         - vanguards
+
+    - import_role:
+        name: swarm_vworp
+      tags:
+        - swarm

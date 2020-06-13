@@ -1,19 +1,22 @@
 ---
 - hosts: proxypool
-  roles:
-    - role: docker_update_image
+  tasks:
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ haproxy_image }}"
       tags:
         - haproxy
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ tor_image }}"
       tags:
         - tor
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
       tags:

@@ -5,6 +5,7 @@
         name: docker_update_image
       vars:
         image: "{{ haproxy_image }}"
+      notify: Restart stack proxypool
       tags:
         - haproxy
 
@@ -12,6 +13,7 @@
         name: docker_update_image
       vars:
         image: "{{ tor_image }}"
+      notify: Restart stack proxypool
       tags:
         - tor
 
@@ -19,5 +21,6 @@
         name: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
+      notify: Restart stack proxypool
       tags:
         - vanguards

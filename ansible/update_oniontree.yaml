@@ -3,11 +3,6 @@
   gather_facts: no
   tasks:
     - import_role:
-        name: common_handlers
-      vars:
-        stack: oniontree
-
-    - import_role:
         name: docker_update_image
       vars:
         image: "{{ tor_image }}"

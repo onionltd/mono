@@ -1,41 +1,48 @@
 ---
 - hosts: oniontree
   gather_facts: no
-  roles:
-    - role: common_handlers
+  tasks:
+    - import_role:
+        name: common_handlers
       vars:
         stack: oniontree
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ tor_image }}"
       tags:
         - tor
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ vanguards_image }}"
       tags:
         - vanguards
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ httpd_image }}"
       tags:
         - httpd
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ hxxpbeam_image }}"
       tags:
         - hxxpbeam
 
-    - role: docker_update_image
+    - import_role:
+        name: docker_update_image
       vars:
         image: "{{ gitsync_image }}"
       tags:
         - gitsync
 
-    - role: swarm_oniontree
+    - import_role:
+        name: swarm_oniontree
       tags:
         - swarm

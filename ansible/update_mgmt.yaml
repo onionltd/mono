@@ -1,0 +1,24 @@
+---
+- hosts: mgmt
+  gather_facts: no
+  tasks:
+    - import_role:
+        name: docker_update_image
+      vars:
+        image: "{{ prometheus_image }}"
+      notify: Restart stack mgmt
+      tags:
+        - prometheus
+
+    - import_role:
+        name: docker_update_image
+      vars:
+        image: "{{ grafana_image }}"
+      notify: Restart stack mgmt
+      tags:
+        - grafana
+
+    - import_role:
+        name: swarm_mgmt
+      tags:
+        - swarm

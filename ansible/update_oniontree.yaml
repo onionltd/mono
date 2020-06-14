@@ -43,6 +43,11 @@
         - gitsync
 
     - import_role:
+        name: swarm_proxypool
+      tags:
+        - proxypool
+
+    - import_role:
         name: swarm_oniontree
       tags:
         - swarm

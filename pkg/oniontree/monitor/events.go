@@ -1,17 +1,17 @@
 package monitor
 
 // Worker events
-type workerStatusEvent struct {
+type WorkerStatusEvent struct {
 	Status Status
 	URL    string
 }
 
 // Process events
 type (
-	processStoppedEvent struct {
+	ProcessStoppedEvent struct {
 		ServiceID string
 	}
-	processStatusEvent struct {
+	ProcessStatusEvent struct {
 		ServiceID string
 		Status    Status
 		URL       string

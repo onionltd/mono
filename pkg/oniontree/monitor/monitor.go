@@ -98,7 +98,7 @@ func (m *Monitor) Start(dir string) error {
 						continue
 					}
 					switch e := event.(type) {
-					case processStoppedEvent:
+					case ProcessStoppedEvent:
 						m.deleteOnlineLinks(e)
 						done = true
 					}
@@ -189,13 +189,13 @@ func (m *Monitor) Start(dir string) error {
 			speedMeasurement.Start()
 
 			switch e := event.(type) {
-			case processStatusEvent:
+			case ProcessStatusEvent:
 				if writer := m.logger.Check(zap.DebugLevel, "event"); writer != nil {
 					writer.Write(zap.Reflect("event", e))
 				}
 				m.updateOnlineLinks(e)
 				m.updateLinksDB(e)
-			case processStoppedEvent:
+			case ProcessStoppedEvent:
 				m.deleteOnlineLinks(e)
 			}
 
@@ -258,7 +258,7 @@ func (m *Monitor) GetServiceByURL(url string) (service service.Service, err erro
 	return
 }
 
-func (m *Monitor) updateOnlineLinks(event processStatusEvent) {
+func (m *Monitor) updateOnlineLinks(event ProcessStatusEvent) {
 	val, _ := m.onlineLinks.LoadOrStore(event.ServiceID, make(map[string]string))
 	urls := val.(map[string]string)
 
@@ -270,13 +270,13 @@ func (m *Monitor) updateOnlineLinks(event processStatusEvent) {
 	m.onlineLinks.Store(event.ServiceID, urls)
 }
 
-func (m *Monitor) deleteOnlineLinks(event processStoppedEvent) {
+func (m *Monitor) deleteOnlineLinks(event ProcessStoppedEvent) {
 	m.onlineLinks.Delete(event.ServiceID)
 }
 
 // updateLinksDB stores a link in links database. The database contains data which can be used
 // for fast link -> serviceID translation. Data in links database are never deleted.
-func (m *Monitor) updateLinksDB(event processStatusEvent) {
+func (m *Monitor) updateLinksDB(event ProcessStatusEvent) {
 	m.linksDB.Store(event.URL, event.ServiceID)
 }
 

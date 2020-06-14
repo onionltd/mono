@@ -40,8 +40,8 @@ func (p *Process) Start(serviceID string) {
 					continue
 				}
 				switch e := event.(type) {
-				case workerStatusEvent:
-					p.sendEvent(processStatusEvent{
+				case WorkerStatusEvent:
+					p.sendEvent(ProcessStatusEvent{
 						ServiceID: serviceID,
 						Status:    e.Status,
 						URL:       e.URL,
@@ -52,7 +52,7 @@ func (p *Process) Start(serviceID string) {
 		close(p.workersEventCh)
 
 		// Sent termination event to notify the monitor that this process has stopped.
-		p.sendEvent(processStoppedEvent{
+		p.sendEvent(ProcessStoppedEvent{
 			ServiceID: serviceID,
 		})
 	}()
@@ -111,8 +111,8 @@ func (p *Process) Start(serviceID string) {
 				continue
 			}
 			switch e := event.(type) {
-			case workerStatusEvent:
-				p.sendEvent(processStatusEvent{
+			case WorkerStatusEvent:
+				p.sendEvent(ProcessStatusEvent{
 					ServiceID: serviceID,
 					Status:    e.Status,
 					URL:       e.URL,

@@ -31,7 +31,7 @@ func (w *Worker) Start(url string) {
 		if r := recover(); r != nil {
 			w.logger.Error("panicking", zap.Reflect("reason", r))
 		}
-		w.sendEvent(workerStatusEvent{
+		w.sendEvent(WorkerStatusEvent{
 			Status: StatusOffline,
 			URL:    url,
 		})
@@ -73,7 +73,7 @@ func (w *Worker) Start(url string) {
 
 			failedAttempts = 0
 
-			w.sendEvent(workerStatusEvent{
+			w.sendEvent(WorkerStatusEvent{
 				Status: status,
 				URL:    url,
 			})

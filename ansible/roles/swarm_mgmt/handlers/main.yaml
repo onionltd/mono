@@ -1,0 +1,6 @@
+---
+- name: Restart stack mgmt
+  systemd:
+    name: docker-compose@mgmt.service
+    state: restarted
+  become: yes

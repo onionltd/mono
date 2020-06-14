@@ -1,0 +1,3 @@
+---
+prometheus_image: localhost/prometheus:latest
+grafana_image: localhost/grafana:latest

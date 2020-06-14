@@ -1,0 +1,12 @@
+scrape_configs:
+  - job_name: oniontree
+    bearer_token: "{{ mgmt_prometheus_metrics_auth }}"
+    proxy_url: socks5://127.0.0.1:9050
+    static_configs:
+      - targets: ["onions53ehmf4q75.onion"]
+
+  - job_name: vworp
+    bearer_token: "{{ mgmt_prometheus_metrics_auth }}"
+    proxy_url: socks5://127.0.0.1:9050
+    static_configs:
+      - targets: ["vworp2mspe566cws.onion"]

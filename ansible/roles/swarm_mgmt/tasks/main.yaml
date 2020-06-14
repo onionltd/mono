@@ -1,0 +1,24 @@
+---
+- name: Make directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: user
+    group: users
+  with_items:
+    - /opt/mgmt
+    - /opt/mgmt/config
+  become: yes
+  notify: Restart stack mgmt
+
+- name: Copy prometheus.yaml
+  template:
+    src: prometheus.yaml
+    dest: /opt/mgmt/config/prometheus.yaml
+  notify: Restart stack mgmt
+
+- name: Copy docker-compose.yaml
+  template:
+    src: docker-compose.yaml
+    dest: /opt/mgmt/docker-compose.yaml
+  notify: Restart stack mgmt

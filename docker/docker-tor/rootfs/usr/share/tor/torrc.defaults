@@ -1,0 +1,14 @@
+DataDirectory /var/lib/tor
+PidFile /run/tor/tor.pid
+User tor
+
+Log notice syslog
+
+ControlSocket /run/tor/control GroupWritable RelaxDirModeCheck
+ControlSocketsGroupWritable 1
+
+CookieAuthentication 1
+CookieAuthFileGroupReadable 1
+CookieAuthFile /run/tor/control.authcookie
+
+SocksPort 0.0.0.0:9050

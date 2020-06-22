@@ -14,5 +14,5 @@ func (s *server) routes() {
 			string(s.config.PromMetricsAuth),
 		),
 	)
-	s.router.GET("/qr/:id/:fp", s.handleQR())
+	s.router.GET("/qr/generate", s.handleQR())
 }

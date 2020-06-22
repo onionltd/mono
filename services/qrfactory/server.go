@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/disintegration/imaging"
 	"github.com/labstack/echo/v4"
 	"github.com/skip2/go-qrcode"
@@ -69,6 +68,13 @@ func (s *server) handleQR() echo.HandlerFunc {
 		}
 		return
 	}
+	getIcon := func(c echo.Context) image.Image {
+		v, ok := s.images[c.QueryParam("icon")]
+		if !ok {
+			return nil
+		}
+		return v
+	}
 	getQRSize := func(c echo.Context) int {
 		switch c.QueryParam("size") {
 		case "small":
@@ -95,11 +101,8 @@ func (s *server) handleQR() echo.HandlerFunc {
 		}
 		return v
 	}
-	makeVworpURL := func(serviceID, fingerprint string) string {
-		return fmt.Sprintf("http://vworp2mspe566cws.onion/to/%s/%s", serviceID, fingerprint)
-	}
-	generateQRCode := func(url string, size int, fgColor color.Color, bgColor color.Color) (image.Image, error) {
-		qr, err := qrcode.New(url, qrcode.High)
+	generateQRCode := func(text string, size int, fgColor color.Color, bgColor color.Color) (image.Image, error) {
+		qr, err := qrcode.New(text, qrcode.High)
 		if err != nil {
 			return nil, err
 		}
@@ -127,8 +130,10 @@ func (s *server) handleQR() echo.HandlerFunc {
 		return c.Blob(code, "image/png", imgData.Bytes())
 	}
 	return func(c echo.Context) error {
-		serviceID := c.Param("id")
-		fingerprint := c.Param("fp")
+		text := c.QueryParam("text")
+		if text == "" {
+			return c.String(http.StatusBadRequest, "text content for the QR code not provided")
+		}
 
 		qrSize := getQRSize(c)
 
@@ -143,7 +148,7 @@ func (s *server) handleQR() echo.HandlerFunc {
 		}
 
 		qrImage, err := generateQRCode(
-			makeVworpURL(serviceID, fingerprint),
+			text,
 			qrSize,
 			fgColor,
 			bgColor,
@@ -153,8 +158,8 @@ func (s *server) handleQR() echo.HandlerFunc {
 			return err
 		}
 
-		if logoImage, ok := s.images[serviceID]; ok {
-			qrImage, err = addOverlayLogo(qrImage, logoImage, oneFourthOf(qrSize))
+		if icon := getIcon(c); icon != nil {
+			qrImage, err = addOverlayLogo(qrImage, icon, oneFourthOf(qrSize))
 			if err != nil {
 				s.logger.Error("failed to overlay a logo", zap.Error(err))
 				return err

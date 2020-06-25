@@ -17,7 +17,7 @@ type server struct {
 	logger *zap.Logger
 	router *echo.Echo
 	config *config
-	images map[string]image.Image
+	icons  map[string]image.Image
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func (s *server) handleQR() echo.HandlerFunc {
 		return
 	}
 	getIcon := func(c echo.Context) image.Image {
-		v, ok := s.images[c.QueryParam("icon")]
+		v, ok := s.icons[c.QueryParam("icon")]
 		if !ok {
 			return nil
 		}
@@ -182,7 +182,7 @@ func (s *server) handleHome() echo.HandlerFunc {
 	}
 	return func(c echo.Context) error {
 		pageContent := pageData{}
-		pageContent.Icons = s.images
+		pageContent.Icons = s.icons
 		return c.Render(http.StatusOK, "home", pageContent)
 	}
 }

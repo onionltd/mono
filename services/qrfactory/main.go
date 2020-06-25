@@ -40,7 +40,7 @@ func run() error {
 		return err
 	}
 
-	images, err := setupImages(cfg)
+	icons, err := setupIcons(cfg)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func run() error {
 		logger: httpdLogger,
 		config: cfg,
 		router: router,
-		images: images,
+		icons:  icons,
 	}
 	server.routes()
 
@@ -127,8 +127,8 @@ func setupRouterMetrics(e *echo.Echo) {
 	p.Use(e)
 }
 
-func setupImages(cfg *config) (map[string]image.Image, error) {
-	files, err := filepath.Glob(cfg.ImagesPattern)
+func setupIcons(cfg *config) (map[string]image.Image, error) {
+	files, err := filepath.Glob(cfg.IconsPattern)
 	if err != nil {
 		return nil, err
 	}

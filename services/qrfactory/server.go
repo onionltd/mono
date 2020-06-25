@@ -161,7 +161,7 @@ func (s *server) handleQR() echo.HandlerFunc {
 		)
 		if err != nil {
 			s.logger.Error("failed to generate the QR code", zap.Error(err))
-			return err
+			return c.String(http.StatusBadRequest, "text is too long")
 		}
 
 		if icon := getIcon(c); icon != nil {

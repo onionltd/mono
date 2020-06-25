@@ -16,5 +16,7 @@ func (s *server) routes() {
 	)
 	s.router.GET("/qr/generate", s.handleQR())
 
+	s.router.File("/robots.txt", s.config.WWWDir+"/robots.txt")
+
 	s.router.Static("/static", s.config.WWWDir)
 }

@@ -33,13 +33,19 @@ func run() error {
 		return err
 	}
 	httpdLogger := rootLogger.Named("httpd")
+	templatesLogger := rootLogger.Named("templates")
+
+	templates, err := setupTemplates(templatesLogger, cfg)
+	if err != nil {
+		return err
+	}
 
 	images, err := setupImages(cfg)
 	if err != nil {
 		return err
 	}
 
-	router := setupRouter(httpdLogger)
+	router := setupRouter(httpdLogger, templates)
 
 	// Setup prometheus metrics
 	setupRouterMetrics(router)
@@ -93,10 +99,21 @@ func setupLogger(cfg *config) (*zap.Logger, error) {
 	return zaputil.DefaultConfigWithLogLevel(cfg.LogLevel).Build()
 }
 
-func setupRouter(logger *zap.Logger) *echo.Echo {
+func setupTemplates(logger *zap.Logger, cfg *config) (*Templates, error) {
+	t := &Templates{
+		logger: logger,
+	}
+	if err := t.Load(cfg.TemplatesPattern); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	e.Renderer = t
 	e.Use(loggermw.WithConfig(logger))
 	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
 	return e

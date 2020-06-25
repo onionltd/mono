@@ -7,7 +7,7 @@ import (
 )
 
 func (s *server) routes() {
-	s.router.GET("/", s.handleHello())
+	s.router.GET("/", s.handleHome())
 	s.router.GET("/metrics",
 		echo.WrapHandler(promhttp.Handler()),
 		auth.KeyAuthWithConfig(
@@ -15,4 +15,6 @@ func (s *server) routes() {
 		),
 	)
 	s.router.GET("/qr/generate", s.handleQR())
+
+	s.router.Static("/static", s.config.WWWDir)
 }

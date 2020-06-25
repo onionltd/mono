@@ -175,3 +175,14 @@ func (s *server) handleQR() echo.HandlerFunc {
 		return drawImage(c, http.StatusOK, qrImage)
 	}
 }
+
+func (s *server) handleHome() echo.HandlerFunc {
+	type pageData struct {
+		Icons map[string]image.Image
+	}
+	return func(c echo.Context) error {
+		pageContent := pageData{}
+		pageContent.Icons = s.images
+		return c.Render(http.StatusOK, "home", pageContent)
+	}
+}

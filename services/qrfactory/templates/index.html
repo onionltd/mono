@@ -1,0 +1,58 @@
+{{ define "home" -}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        {{ template "head" }}
+        <title>QR Factory</title>
+    </head>
+    <body>
+    <div id="container" class="centered">
+        <h1>QR Factory</h1>
+
+        <p>Generate snappy QR codes.</p>
+
+        <div class="elem">
+            <form method="get" action="/qr/generate" target="qrcode">
+                <div class="elem">
+                    <label for="text">Text:</label>
+                    <input type="text" id="text" name="text">
+                </div>
+
+                <div class="elem">
+                    <label for="icon">Icon:</label>
+                    <select id="icon" name="icon">
+                        {{ range $icon, $v := .Icons }}
+                            <option value="{{ $icon }}">{{ $icon }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+
+                <div class="elem">
+                    <label for="bg">Background:</label>
+                    <input type="color" id="bg" name="bg" value="#FFFFFF">
+
+                    <label for="fg">Foreground:</label>
+                    <input type="color" id="fg" name="fg" value="#000000">
+                </div>
+
+                <div class="elem">
+                    <label for="size">Size:</label>
+                    <select id="size" name="size">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+
+                <input type="submit" value="Generate">
+            </form>
+        </div>
+
+        <div class="elem">
+            <iframe name="qrcode" style="width:330px;height:330px;padding:0;border:1px solid red;box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;"></iframe>
+        </div>
+    </div>
+    {{ template "footer" . }}
+    </body>
+    </html>
+{{- end }}

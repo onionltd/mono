@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
+	"github.com/onionltd/go-oniontree"
+	"github.com/onionltd/go-oniontree/scanner"
+	"github.com/onionltd/go-oniontree/scanner/evtcache"
 	echoerrors "github.com/onionltd/mono/pkg/echo/errors"
 	loggermw "github.com/onionltd/mono/pkg/echo/middleware/logger"
-	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	zaputil "github.com/onionltd/mono/pkg/utils/zap"
 	"go.uber.org/zap"
 	"net/http"
@@ -29,14 +31,21 @@ func run() error {
 	}
 	httpdLogger := rootLogger.Named("httpd")
 
-	mon := setupMonitor(rootLogger.Named("monitor"), cfg)
+	ot, err := setupOnionTree(cfg)
+	if err != nil {
+		return err
+	}
+
+	scanr := setupScanner(cfg)
+	cache := setupEventCache()
 	router := setupRouter(httpdLogger)
 
 	server := server{
-		logger:       httpdLogger,
-		config:       cfg,
-		linksMonitor: mon,
-		router:       router,
+		logger: httpdLogger,
+		config: cfg,
+		router: router,
+		cache:  cache,
+		ot:     ot,
 	}
 	server.routes()
 
@@ -47,18 +56,30 @@ func run() error {
 	go func() {
 		<-sigCh
 		rootLogger.Warn("received a termination signal")
-		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 		_ = router.Shutdown(ctx)
-		_ = mon.Stop(ctx)
+
+		scanr.Stop()
 	}()
 
+	eventCh := make(chan scanner.Event)
+
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
-		if err := mon.Start(cfg.OnionTreeDir); err != nil {
-			rootLogger.Error("monitor error", zap.Error(err))
+		if err := scanr.Start(context.Background(), cfg.OnionTreeDir, eventCh); err != nil {
+			rootLogger.Error("scanner error", zap.Error(err))
+			die()
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		if err := cache.ReadEvents(context.Background(), eventCh); err != nil {
+			rootLogger.Error("cache error", zap.Error(err))
 			die()
 		}
 	}()
@@ -89,6 +110,10 @@ func setupLogger(cfg *config) (*zap.Logger, error) {
 	return zaputil.DefaultConfigWithLogLevel(cfg.LogLevel).Build()
 }
 
+func setupOnionTree(cfg *config) (*oniontree.OnionTree, error) {
+	return oniontree.Open(cfg.OnionTreeDir)
+}
+
 func setupRouter(logger *zap.Logger) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
@@ -98,12 +123,16 @@ func setupRouter(logger *zap.Logger) *echo.Echo {
 	return e
 }
 
-func setupMonitor(logger *zap.Logger, cfg *config) *monitor.Monitor {
-	monitorCfg := monitor.DefaultMonitorConfig
-	monitorCfg.WorkerTCPConnectionsMax = cfg.MonitorConnectionsMax
-	monitorCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
-	monitorCfg.WorkerConfig.PingInterval = cfg.MonitorPingInterval
-	return monitor.NewMonitor(logger, monitorCfg)
+func setupScanner(cfg *config) *scanner.Scanner {
+	scannerCfg := scanner.DefaultScannerConfig
+	scannerCfg.WorkerTCPConnectionsMax = cfg.MonitorConnectionsMax
+	scannerCfg.WorkerConfig.PingTimeout = cfg.MonitorPingTimeout
+	scannerCfg.WorkerConfig.PingInterval = cfg.MonitorPingInterval
+	return scanner.NewScanner(scannerCfg)
+}
+
+func setupEventCache() *evtcache.Cache {
+	return &evtcache.Cache{}
 }
 
 func die() {

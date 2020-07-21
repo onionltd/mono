@@ -2,8 +2,9 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/onionltd/mono/pkg/oniontree/monitor"
-	"github.com/onionltd/oniontree-tools/pkg/oniontree"
+	"github.com/onionltd/go-oniontree"
+	"github.com/onionltd/go-oniontree/scanner"
+	"github.com/onionltd/go-oniontree/scanner/evtcache"
 	"go.uber.org/zap"
 	"image/color"
 	"net/http"
@@ -11,10 +12,11 @@ import (
 )
 
 type server struct {
-	logger       *zap.Logger
-	linksMonitor *monitor.Monitor
-	router       *echo.Echo
-	config       *config
+	logger *zap.Logger
+	router *echo.Echo
+	config *config
+	cache  *evtcache.Cache
+	ot     *oniontree.OnionTree
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +45,7 @@ func (s *server) handleJSON() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, response{Error: err.Error()})
 		}
 
-		service, err := s.linksMonitor.GetService(serviceID)
+		service, err := s.ot.GetService(serviceID)
 		if err != nil {
 			if err == oniontree.ErrIdNotExists {
 				return c.JSON(http.StatusNotFound, response{Error: "service not found"})
@@ -63,19 +65,14 @@ func (s *server) handleJSON() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, response{Error: "address does not belong to the service"})
 		}
 
-		online, ok := s.linksMonitor.GetOnlineLinks(serviceID)
-		if !ok {
-			return c.JSON(http.StatusNotFound, response{Error: "service not found"})
-		}
-
-		status := "offline"
-		for i := range online {
-			if online[i] == address {
-				status = "online"
+		status := scanner.StatusOffline
+		if addrs, ok := s.cache.GetAddresses(serviceID); ok {
+			if v, ok := addrs[address]; ok {
+				status = v
 			}
 		}
 
-		return c.JSON(http.StatusOK, response{Status: status})
+		return c.JSON(http.StatusOK, response{Status: status.String()})
 	}
 }
 
@@ -117,7 +114,7 @@ func (s *server) handlePNG() echo.HandlerFunc {
 			return drawImage(c, http.StatusBadRequest, "error")
 		}
 
-		service, err := s.linksMonitor.GetService(serviceID)
+		service, err := s.ot.GetService(serviceID)
 		if err != nil {
 			if err == oniontree.ErrIdNotExists {
 				return drawImage(c, http.StatusNotFound, "error")
@@ -137,18 +134,13 @@ func (s *server) handlePNG() echo.HandlerFunc {
 			return drawImage(c, http.StatusNotFound, "error")
 		}
 
-		online, ok := s.linksMonitor.GetOnlineLinks(serviceID)
-		if !ok {
-			return drawImage(c, http.StatusNotFound, "error")
-		}
-
-		status := "offline"
-		for i := range online {
-			if online[i] == address {
-				status = "online"
+		status := scanner.StatusOffline
+		if addrs, ok := s.cache.GetAddresses(serviceID); ok {
+			if v, ok := addrs[address]; ok {
+				status = v
 			}
 		}
 
-		return drawImage(c, http.StatusOK, status)
+		return drawImage(c, http.StatusOK, status.String())
 	}
 }

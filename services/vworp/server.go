@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/labstack/echo/v4"
+	"github.com/onionltd/go-oniontree"
+	"github.com/onionltd/go-oniontree/scanner/evtcache"
 	captcha "github.com/onionltd/mono/pkg/base64captcha"
-	"github.com/onionltd/mono/pkg/oniontree/monitor"
 	badgerutil "github.com/onionltd/mono/pkg/utils/badger"
 	"github.com/onionltd/mono/services/vworp/badger/links"
-	"github.com/onionltd/oniontree-tools/pkg/types/service"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -21,13 +21,14 @@ import (
 )
 
 type server struct {
-	logger       *zap.Logger
-	linksMonitor *monitor.Monitor
-	router       *echo.Echo
-	captcha      *captcha.Captcha
-	badgerDB     *badger.DB
-	config       *config
-	oopsSet      oopsSet
+	logger   *zap.Logger
+	router   *echo.Echo
+	captcha  *captcha.Captcha
+	cache    *evtcache.Cache
+	ot       *oniontree.OnionTree
+	badgerDB *badger.DB
+	config   *config
+	oopsSet  oopsSet
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +37,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handleRedirect() echo.HandlerFunc {
 	type pageData struct {
-		Service service.Service
+		Service *oniontree.Service
 		Online  bool
 		Link    *links.Link
 		Mirror  string
@@ -61,7 +62,7 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 		serviceID := c.Param("id")
 		fingerprint := c.Param("fp")
 
-		service, err := s.linksMonitor.GetService(serviceID)
+		service, err := s.ot.GetService(serviceID)
 		if err != nil {
 			return oops(c, http.StatusNotFound, false)
 		}
@@ -76,11 +77,11 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 			return oops(c, http.StatusInternalServerError, false)
 		}
 
-		if link.ServiceID() != service.ID {
+		if link.ServiceID() != service.ID() {
 			return oops(c, http.StatusNotFound, false)
 		}
 
-		online, _ := s.linksMonitor.GetOnlineLinks(serviceID)
+		online, _ := s.cache.GetOnlineAddresses(service.ID())
 		sortAddressesV3First(online)
 
 		pageContent := pageData{}
@@ -119,15 +120,15 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 			u.Path = "/"
 		}
 
-		service, err := s.linksMonitor.GetServiceByURL(
+		serviceID, ok := s.cache.GetServiceID(
 			fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 		)
-		if err != nil {
+		if !ok {
 			return oops(c, http.StatusNotFound)
 		}
 
 		// Someone just pasted a vworp! link
-		if service.ID == "vworp" {
+		if serviceID == "vworp" {
 			return oops(c, http.StatusNotAcceptable)
 		}
 
@@ -137,7 +138,7 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 			Fragment: u.Fragment,
 		}).String()
 
-		link, err := links.NewLink(service.ID, path)
+		link, err := links.NewLink(serviceID, path)
 		if err != nil {
 			s.logger.Error("failed to create a new link", zap.Error(err))
 			return oops(c, http.StatusInternalServerError)
@@ -155,7 +156,7 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 func (s *server) handleLinksView() echo.HandlerFunc {
 	type pageData struct {
 		Section       string
-		Service       service.Service
+		Service       *oniontree.Service
 		ServerAddress string
 		Link          *links.Link
 	}
@@ -186,7 +187,7 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 			return oops(c, http.StatusInternalServerError, false)
 		}
 
-		service, err := s.linksMonitor.GetService(link.ServiceID())
+		service, err := s.ot.GetService(link.ServiceID())
 		if err != nil {
 			return oops(c, http.StatusNotFound, false)
 		}

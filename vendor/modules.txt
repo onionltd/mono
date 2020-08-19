@@ -34,8 +34,7 @@ github.com/emirpasic/gods/lists/arraylist
 github.com/emirpasic/gods/trees
 github.com/emirpasic/gods/trees/binaryheap
 github.com/emirpasic/gods/utils
-# github.com/fsnotify/fsnotify v1.4.7
-## explicit
+# github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
 # github.com/go-yaml/yaml v2.1.0+incompatible
 github.com/go-yaml/yaml
@@ -77,11 +76,13 @@ github.com/mitchellh/go-homedir
 # github.com/mojocn/base64Captcha v1.3.1
 ## explicit
 github.com/mojocn/base64Captcha
-# github.com/onionltd/oniontree-tools v0.0.0-20200217165256-a771af70bf68
+# github.com/onionltd/go-oniontree v0.0.0-20200819155837-4555814633a3
 ## explicit
-github.com/onionltd/oniontree-tools/pkg/oniontree
-github.com/onionltd/oniontree-tools/pkg/types/service
-github.com/onionltd/oniontree-tools/pkg/types/tag
+github.com/onionltd/go-oniontree
+github.com/onionltd/go-oniontree/scanner
+github.com/onionltd/go-oniontree/scanner/evtcache
+github.com/onionltd/go-oniontree/validator
+github.com/onionltd/go-oniontree/watcher
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
@@ -112,7 +113,7 @@ github.com/src-d/gcfg
 github.com/src-d/gcfg/scanner
 github.com/src-d/gcfg/token
 github.com/src-d/gcfg/types
-# github.com/stretchr/testify v1.4.0
+# github.com/stretchr/testify v1.6.1
 ## explicit
 github.com/stretchr/testify/assert
 # github.com/valyala/bytebufferpool v1.0.0
@@ -121,6 +122,12 @@ github.com/valyala/bytebufferpool
 github.com/valyala/fasttemplate
 # github.com/xanzy/ssh-agent v0.2.1
 github.com/xanzy/ssh-agent
+# github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
+github.com/xeipuuv/gojsonpointer
+# github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415
+github.com/xeipuuv/gojsonreference
+# github.com/xeipuuv/gojsonschema v1.2.0
+github.com/xeipuuv/gojsonschema
 # go.uber.org/atomic v1.6.0
 go.uber.org/atomic
 # go.uber.org/multierr v1.5.0
@@ -133,7 +140,7 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
+# golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/blowfish
@@ -161,8 +168,7 @@ golang.org/x/image/font
 golang.org/x/image/math/fixed
 golang.org/x/image/tiff
 golang.org/x/image/tiff/lzw
-# golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
-## explicit
+# golang.org/x/net v0.0.0-20200707034311-ab3426394381
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -173,11 +179,11 @@ golang.org/x/net/internal/socks
 golang.org/x/net/internal/timeseries
 golang.org/x/net/proxy
 golang.org/x/net/trace
-# golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
-## explicit
+# golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 golang.org/x/sync/semaphore
-# golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd
+# golang.org/x/sys v0.0.0-20200803210538-64077c9b5642
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
@@ -236,5 +242,5 @@ gopkg.in/src-d/go-git.v4/utils/merkletrie/internal/frame
 gopkg.in/src-d/go-git.v4/utils/merkletrie/noder
 # gopkg.in/warnings.v0 v0.1.2
 gopkg.in/warnings.v0
-# gopkg.in/yaml.v2 v2.2.7
-gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3

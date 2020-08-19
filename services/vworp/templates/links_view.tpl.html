@@ -15,18 +15,9 @@
                 The address in the submitted link belongs to <span class="service_id">{{ .Service.Name }}</span>.
             </p>
 
-            {{ if gt (len .Service.URLs) 1 }}
-                <p>
-                    <span class="service_id">{{ .Service.Name }}</span> is known to use <strong>{{ len .Service.URLs }}</strong> different addresses.
-                </p>
-            {{ end }}
-
-            <p>Use the links below to redirect there. A preview link will give the recipients a chance to see the
-            destination before being redirected.</p>
-
-            <div class="elem">
-                <input type="text" class="links_input" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}">
-            </div>
+            <p>
+                Use the shortened link below to redirect there:
+            </p>
 
             <div class="elem">
                 <input type="text" class="links_input" readonly="readonly" value="http://{{ .ServerAddress }}/to/{{ .Service.ID }}/{{ .Link.Fingerprint }}?preview">

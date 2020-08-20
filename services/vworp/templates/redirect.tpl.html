@@ -3,11 +3,15 @@
     <html lang="en">
     <head>
         {{ template "head" }}
+        <link rel="stylesheet" href="/static/css/icons.css">
         <title>{{ if .Online -}}Redirecting{{- else -}}{{ .Service.Name }} is offline{{ end }} &ndash; vworp!</title>
     </head>
     <body>
         {{ template "menu" . }}
+
         <div id="container" class="centered">
+            <div class="subicon {{ .Service.ID }}"></div>
+
             {{ if .Online }}
                 <h1>{{ .Service.Name }}</h1>
 
@@ -15,8 +19,8 @@
                     You are being redirected to
                 </p>
 
-                <p>
-                    <a href="{{ .Mirror }}{{ .Link.Path }}" referrerpolicy="no-referrer">{{ .Mirror }}{{ .Link.Path }}</a>
+                <p class="text-ellipsis">
+                    <a href="{{ .Mirror }}{{ .Link.Path }}" title="{{ .Mirror }}{{ .Link.Path }}" referrerpolicy="no-referrer">{{ .Mirror }}{{ .Link.Path }}</a>
                 </p>
             {{ else }}
                 <h1>{{ .Service.Name }}</h1>

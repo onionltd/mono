@@ -3,20 +3,19 @@
     <html lang="en">
     <head>
         {{ template "head" }}
+        <link rel="stylesheet" href="/static/css/icons.css">
         <title>Done &ndash; vworp!</title>
     </head>
     <body>
     {{ template "menu" . }}
     <div id="container" class="centered">
         {{ if eq .Section "new" }}
+            <div class="subicon done"></div>
+
             <h1>Done</h1>
 
             <p>
-                The address in the submitted link belongs to <span class="service_id">{{ .Service.Name }}</span>.
-            </p>
-
-            <p>
-                Use the shortened link below to redirect there:
+                Use the shortened link below to redirect to <span class="service_id">{{ .Service.Name }}</span>.
             </p>
 
             <div class="elem">

@@ -3,12 +3,15 @@
     <html lang="en">
     <head>
         {{ template "head" }}
+        <link rel="stylesheet" href="/static/css/icons.css">
         <title>Oops &ndash; vworp!</title>
     </head>
     <body>
     {{ template "menu" . }}
     <div id="container" class="centered">
         {{ if .OopsMessage }}
+            <div class="subicon oops"></div>
+
             <h1>Oops</h1>
 
             <p>{{ .OopsMessage }}</p>

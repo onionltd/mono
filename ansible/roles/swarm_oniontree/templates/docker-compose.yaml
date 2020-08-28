@@ -101,7 +101,7 @@ services:
     image: localhost/gitsync:latest
     restart: always
     environment:
-      REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/onionltd.foo.onion.git
+      REPOSITORY: https://github.com/oniontree-org/oniontree-org.onion
       REPOSITORY_SYNC_INTERVAL: 5m
       OUTPUT_PATH: /home/user/data/rw/www
       PGP_KEYRING: /home/user/data/ro/pgp.txt

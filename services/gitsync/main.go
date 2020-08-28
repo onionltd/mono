@@ -22,22 +22,22 @@ func run() error {
 
 	rootLogger, err := setupLogger(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("setup logger error: %s", err)
 	}
 
 	armoredKeyRing, err := readArmoredKeyRing(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("read armored keyring error: %s", err)
 	}
 
 	repo, err := gitCloneOrOpen(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("clone or open error: %s", err)
 	}
 
 	if !cfg.NoVerifySignature {
 		if err := gitVerifyHeadCommitSignature(repo, armoredKeyRing); err != nil {
-			return err
+			return fmt.Errorf("verify head signature error: %s", err)
 		}
 	}
 

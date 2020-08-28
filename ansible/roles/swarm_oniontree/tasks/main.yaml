@@ -11,22 +11,22 @@
     - /opt/oniontree/secrets/httpd
     - /opt/oniontree/secrets/hxxpbeam
   become: yes
-  notify: Restart stack
+  notify: Restart stack oniontree
 
 - name: Copy httpd private key
   copy:
     content: "{{ swarm_oniontree_httpd_private_key }}"
     dest: /opt/oniontree/secrets/httpd/private_key
-  notify: Restart stack
+  notify: Restart stack oniontree
 
 - name: Copy hxxpbeam private key
   copy:
     content: "{{ swarm_oniontree_hxxpbeam_private_key | b64decode }}"
     dest: /opt/oniontree/secrets/hxxpbeam/hs_ed25519_secret_key
-  notify: Restart stack
+  notify: Restart stack oniontree
 
 - name: Copy docker-compose.yaml
   template:
     src: docker-compose.yaml
     dest: /opt/oniontree/docker-compose.yaml
-  notify: Restart stack
+  notify: Restart stack oniontree

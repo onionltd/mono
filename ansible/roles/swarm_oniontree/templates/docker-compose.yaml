@@ -104,7 +104,7 @@ services:
       REPOSITORY: https://github.com/oniontree-org/oniontree-org.onion
       REPOSITORY_SYNC_INTERVAL: 5m
       OUTPUT_PATH: /home/user/data/rw/www
-      PGP_KEYRING: /home/user/data/ro/pgp.txt
+      PGP_KEYRING: /home/user/data/ro/root@oniontree.org.asc
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:
@@ -121,7 +121,7 @@ services:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git
       REPOSITORY_SYNC_INTERVAL: 5m
       OUTPUT_PATH: /home/user/data/rw/oniontree
-      PGP_KEYRING: /home/user/data/ro/pgp.txt
+      PGP_KEYRING: /home/user/data/ro/onionltd@protonmail.com.asc
       TORSOCKS_TOR_ADDRESS: haproxy
       TORSOCKS_TOR_PORT: 9050
     networks:

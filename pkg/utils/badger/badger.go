@@ -7,8 +7,8 @@ import (
 
 type Key []byte
 
-func Load(k Key, kv KVPairInterface) func(txn *badger.Txn) error {
-	return func(txn *badger.Txn) error {
+func Load(db *badger.DB, k Key, kv KVPairInterface) error {
+	return db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(k)
 		if err != nil {
 			return err
@@ -24,11 +24,11 @@ func Load(k Key, kv KVPairInterface) func(txn *badger.Txn) error {
 			return err
 		}
 		return nil
-	}
+	})
 }
 
-func Store(kv KVPairInterface) func(txn *badger.Txn) error {
-	return func(txn *badger.Txn) error {
+func Store(db *badger.DB, kv KVPairInterface) error {
+	return db.Update(func(txn *badger.Txn) error {
 		v, err := kv.Value()
 		if err != nil {
 			return err
@@ -39,5 +39,5 @@ func Store(kv KVPairInterface) func(txn *badger.Txn) error {
 			UserMeta:  kv.Meta(),
 			ExpiresAt: uint64(kv.Expires().Unix()),
 		})
-	}
+	})
 }

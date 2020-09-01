@@ -30,12 +30,12 @@ func TestStore(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err := db.Update(badgerutil.Store(link)); err != nil {
+	if err := badgerutil.Store(db, link); err != nil {
 		t.Fatal(err)
 	}
 
 	readLink := &links.Link{}
-	if err := db.View(badgerutil.Load(link.Key(), readLink)); err != nil {
+	if err := badgerutil.Load(db, link.Key(), readLink); err != nil {
 		t.Fatal(err)
 	}
 	assert.Equal(t, readLink, link)

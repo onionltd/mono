@@ -69,7 +69,7 @@ func (s *server) handleRedirect() echo.HandlerFunc {
 
 		key := links.NewKey(fingerprint)
 		link := &links.Link{}
-		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
+		if err := badgerutil.Load(s.badgerDB, key, link); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
 				return oops(c, http.StatusNotFound, false)
 			}
@@ -144,7 +144,7 @@ func (s *server) handleLinksNew() echo.HandlerFunc {
 			return oops(c, http.StatusInternalServerError)
 		}
 
-		if err := s.badgerDB.Update(badgerutil.Store(link)); err != nil {
+		if err := badgerutil.Store(s.badgerDB, link); err != nil {
 			s.logger.Error("failed to update the database", zap.Error(err))
 			return oops(c, http.StatusInternalServerError)
 		}
@@ -179,7 +179,7 @@ func (s *server) handleLinksView() echo.HandlerFunc {
 
 		key := links.NewKey(fingerprint)
 		link := &links.Link{}
-		if err := s.badgerDB.View(badgerutil.Load(key, link)); err != nil {
+		if err := badgerutil.Load(s.badgerDB, key, link); err != nil {
 			if errors.Is(err, badger.ErrKeyNotFound) {
 				return oops(c, http.StatusNotFound, false)
 			}

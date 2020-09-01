@@ -1,6 +1,6 @@
 package main
 
-import baseconfig "github.com/onionltd/mono/pkg/services/config"
+import baseconfig "github.com/onionltd/mono/pkg/config"
 
 type config struct {
 	baseconfig.BaseConfig

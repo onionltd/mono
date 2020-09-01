@@ -1,7 +1,7 @@
 package main
 
 import (
-	baseconfig "github.com/onionltd/mono/pkg/services/config"
+	baseconfig "github.com/onionltd/mono/pkg/config"
 	"time"
 )
 

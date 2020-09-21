@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jessevdk/go-flags"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/onionltd/go-oniontree"
 	"github.com/onionltd/go-oniontree/scanner"
@@ -39,6 +40,9 @@ func run() error {
 	scanr := setupScanner(cfg)
 	cache := setupEventCache()
 	router := setupRouter(httpdLogger)
+
+	// Setup prometheus metrics
+	setupRouterMetrics(router)
 
 	server := server{
 		logger: httpdLogger,
@@ -133,6 +137,14 @@ func setupScanner(cfg *config) *scanner.Scanner {
 
 func setupEventCache() *evtcache.Cache {
 	return &evtcache.Cache{}
+}
+
+func setupRouterMetrics(e *echo.Echo) {
+	p := prometheus.NewPrometheus("httpd", nil)
+	p.RequestCounterURLLabelMappingFunc = func(c echo.Context) string {
+		return c.Request().RequestURI
+	}
+	p.Use(e)
 }
 
 func die() {

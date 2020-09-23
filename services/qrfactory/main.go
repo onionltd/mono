@@ -47,9 +47,6 @@ func run() error {
 
 	router := setupRouter(httpdLogger, templates)
 
-	// Setup prometheus metrics
-	setupRouterMetrics(router)
-
 	server := server{
 		logger: httpdLogger,
 		config: cfg,
@@ -116,15 +113,14 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.Renderer = t
 	e.Use(loggermw.WithConfig(logger))
 	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
-	return e
-}
 
-func setupRouterMetrics(e *echo.Echo) {
+	// Setup prometheus metrics
 	p := prometheus.NewPrometheus("httpd", nil)
 	p.RequestCounterURLLabelMappingFunc = func(c echo.Context) string {
 		return c.Request().RequestURI
 	}
 	p.Use(e)
+	return e
 }
 
 func setupIcons(cfg *config) (map[string]image.Image, error) {

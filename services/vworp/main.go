@@ -98,7 +98,7 @@ func run() error {
 	}()
 	go func() {
 		defer wg.Done()
-		if err := cache.ReadEvents(context.Background(), eventCh); err != nil {
+		if err := cache.ReadEvents(context.Background(), eventCh, nil); err != nil {
 			rootLogger.Error("cache error", zap.Error(err))
 			die()
 		}

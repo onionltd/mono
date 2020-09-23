@@ -14,9 +14,14 @@ type Cache struct {
 	services map[string]string
 }
 
-func (c *Cache) ReadEvents(ctx context.Context, inputCh <-chan scanner.Event) error {
+func (c *Cache) ReadEvents(ctx context.Context, inputCh <-chan scanner.Event, outputCh chan<- scanner.Event) error {
 	c.init()
 	defer c.uninit()
+	defer func() {
+		if outputCh != nil {
+			close(outputCh)
+		}
+	}()
 
 	for {
 		select {
@@ -34,6 +39,10 @@ func (c *Cache) ReadEvents(ctx context.Context, inputCh <-chan scanner.Event) er
 
 			case scanner.ProcessStopped:
 				c.deleteService(e.ServiceID)
+			}
+
+			if outputCh != nil {
+				outputCh <- event
 			}
 
 		case <-ctx.Done():

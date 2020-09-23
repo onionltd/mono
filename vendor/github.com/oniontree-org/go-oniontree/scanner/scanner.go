@@ -3,8 +3,8 @@ package scanner
 import (
 	"context"
 	"fmt"
-	"github.com/onionltd/go-oniontree"
-	"github.com/onionltd/go-oniontree/watcher"
+	"github.com/oniontree-org/go-oniontree"
+	"github.com/oniontree-org/go-oniontree/watcher"
 	"golang.org/x/sync/semaphore"
 	"runtime/debug"
 )
@@ -65,7 +65,7 @@ func (m *Scanner) Start(ctx context.Context, dir string, outputCh chan<- Event) 
 
 		deadServiceIDs, err := m.ot.ListServicesWithTag("dead")
 		if err != nil {
-			if err != oniontree.ErrTagNotExists {
+			if _, ok := err.(*oniontree.ErrTagNotExists); !ok {
 				return nil, err
 			}
 			return procs, nil

@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/onionltd/go-oniontree"
-	"github.com/onionltd/go-oniontree/scanner"
-	"github.com/onionltd/go-oniontree/scanner/evtcache"
+	"github.com/oniontree-org/go-oniontree"
+	"github.com/oniontree-org/go-oniontree/scanner"
+	"github.com/oniontree-org/go-oniontree/scanner/evtcache"
 	"go.uber.org/zap"
 	"image/color"
 	"net/http"
@@ -47,7 +47,7 @@ func (s *server) handleJSON() echo.HandlerFunc {
 
 		service, err := s.ot.GetService(serviceID)
 		if err != nil {
-			if err == oniontree.ErrIdNotExists {
+			if _, ok := err.(*oniontree.ErrIdNotExists); ok {
 				return c.JSON(http.StatusNotFound, response{Error: "service not found"})
 			}
 			return c.JSON(http.StatusInternalServerError, response{Error: "oops, something is wrong"})
@@ -116,7 +116,7 @@ func (s *server) handlePNG() echo.HandlerFunc {
 
 		service, err := s.ot.GetService(serviceID)
 		if err != nil {
-			if err == oniontree.ErrIdNotExists {
+			if _, ok := err.(*oniontree.ErrIdNotExists); ok {
 				return drawImage(c, http.StatusNotFound, "error")
 			}
 			return drawImage(c, http.StatusInternalServerError, "error")

@@ -10,8 +10,8 @@ package main
 import (
     "fmt"
     "context"
-    "github.com/onionltd/go-oniontree"
-    "github.com/onionltd/go-oniontree/scanner"
+    "github.com/oniontree-org/go-oniontree"
+    "github.com/oniontree-org/go-oniontree/scanner"
 )
 
 func main() {

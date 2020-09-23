@@ -3,7 +3,7 @@ package scanner
 import (
 	"context"
 	"fmt"
-	"github.com/onionltd/go-oniontree"
+	"github.com/oniontree-org/go-oniontree"
 	"runtime/debug"
 )
 

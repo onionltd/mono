@@ -1,4 +1,4 @@
-module github.com/onionltd/go-oniontree
+module github.com/oniontree-org/go-oniontree
 
 go 1.14
 

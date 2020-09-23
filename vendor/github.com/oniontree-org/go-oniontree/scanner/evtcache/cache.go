@@ -2,7 +2,7 @@ package evtcache
 
 import (
 	"context"
-	"github.com/onionltd/go-oniontree/scanner"
+	"github.com/oniontree-org/go-oniontree/scanner"
 	"sync"
 )
 

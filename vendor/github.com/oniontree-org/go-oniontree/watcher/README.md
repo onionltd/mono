@@ -11,8 +11,8 @@ package main
 import (
     "fmt"
     "context"
-    "github.com/onionltd/go-oniontree"
-    "github.com/onionltd/go-oniontree/watcher"
+    "github.com/oniontree-org/go-oniontree"
+    "github.com/oniontree-org/go-oniontree/watcher"
 )
 
 func main() {

@@ -76,13 +76,14 @@ github.com/mitchellh/go-homedir
 # github.com/mojocn/base64Captcha v1.3.1
 ## explicit
 github.com/mojocn/base64Captcha
-# github.com/onionltd/go-oniontree v0.0.0-20200819155837-4555814633a3
+# github.com/oniontree-org/go-oniontree v0.0.0-20200920172018-bbf390a240a1
 ## explicit
-github.com/onionltd/go-oniontree
-github.com/onionltd/go-oniontree/scanner
-github.com/onionltd/go-oniontree/scanner/evtcache
-github.com/onionltd/go-oniontree/validator
-github.com/onionltd/go-oniontree/watcher
+github.com/oniontree-org/go-oniontree
+github.com/oniontree-org/go-oniontree/scanner
+github.com/oniontree-org/go-oniontree/scanner/evtcache
+github.com/oniontree-org/go-oniontree/validator
+github.com/oniontree-org/go-oniontree/validator/jsonschema
+github.com/oniontree-org/go-oniontree/watcher
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0

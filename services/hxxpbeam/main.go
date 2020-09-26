@@ -72,7 +72,7 @@ func run() error {
 	eventCopyCh := make(chan scanner.Event)
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()

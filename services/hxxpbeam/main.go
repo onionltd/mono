@@ -12,6 +12,8 @@ import (
 	"github.com/oniontree-org/go-oniontree"
 	"github.com/oniontree-org/go-oniontree/scanner"
 	"github.com/oniontree-org/go-oniontree/scanner/evtcache"
+	"github.com/oniontree-org/go-oniontree/scanner/evtmetrics"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -39,6 +41,7 @@ func run() error {
 
 	scanr := setupScanner(cfg)
 	cache := setupEventCache()
+	metrics := setupEventMetrics()
 	router := setupRouter(httpdLogger)
 
 	server := server{
@@ -66,6 +69,7 @@ func run() error {
 	}()
 
 	eventCh := make(chan scanner.Event)
+	eventCopyCh := make(chan scanner.Event)
 
 	wg := sync.WaitGroup{}
 	wg.Add(3)
@@ -79,8 +83,15 @@ func run() error {
 	}()
 	go func() {
 		defer wg.Done()
-		if err := cache.ReadEvents(context.Background(), eventCh, nil); err != nil {
+		if err := cache.ReadEvents(context.Background(), eventCh, eventCopyCh); err != nil {
 			rootLogger.Error("cache error", zap.Error(err))
+			die()
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		if err := metrics.ReadEvents(context.Background(), eventCopyCh, nil); err != nil {
+			rootLogger.Error("metrics error", zap.Error(err))
 			die()
 		}
 	}()
@@ -141,6 +152,12 @@ func setupScanner(cfg *config) *scanner.Scanner {
 
 func setupEventCache() *evtcache.Cache {
 	return &evtcache.Cache{}
+}
+
+func setupEventMetrics() *evtmetrics.Metrics {
+	m := evtmetrics.New()
+	prometheus.MustRegister(m)
+	return m
 }
 
 func die() {

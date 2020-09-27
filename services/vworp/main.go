@@ -6,7 +6,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 	"github.com/dgraph-io/badger/v2/options"
 	"github.com/jessevdk/go-flags"
-	"github.com/labstack/echo-contrib/prometheus"
+	prometheusmw "github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/mojocn/base64Captcha"
 	captcha "github.com/onionltd/mono/pkg/base64captcha"
@@ -16,6 +16,8 @@ import (
 	"github.com/oniontree-org/go-oniontree"
 	"github.com/oniontree-org/go-oniontree/scanner"
 	"github.com/oniontree-org/go-oniontree/scanner/evtcache"
+	"github.com/oniontree-org/go-oniontree/scanner/evtmetrics"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -55,6 +57,7 @@ func run() error {
 
 	scanr := setupScanner(cfg)
 	cache := setupEventCache()
+	metrics := setupEventMetrics()
 	router := setupRouter(httpdLogger, templates)
 
 	server := server{
@@ -85,9 +88,10 @@ func run() error {
 	}()
 
 	eventCh := make(chan scanner.Event)
+	eventCopyCh := make(chan scanner.Event)
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -98,8 +102,15 @@ func run() error {
 	}()
 	go func() {
 		defer wg.Done()
-		if err := cache.ReadEvents(context.Background(), eventCh, nil); err != nil {
+		if err := cache.ReadEvents(context.Background(), eventCh, eventCopyCh); err != nil {
 			rootLogger.Error("cache error", zap.Error(err))
+			die()
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		if err := metrics.ReadEvents(context.Background(), eventCopyCh, nil); err != nil {
+			rootLogger.Error("metrics error", zap.Error(err))
 			die()
 		}
 	}()
@@ -153,7 +164,7 @@ func setupRouter(logger *zap.Logger, t *Templates) *echo.Echo {
 	e.HTTPErrorHandler = echoerrors.DefaultErrorHandler
 
 	// Setup prometheus metrics
-	p := prometheus.NewPrometheus("httpd", nil)
+	p := prometheusmw.NewPrometheus("httpd", nil)
 	p.RequestCounterURLLabelMappingFunc = func(c echo.Context) string {
 		return c.Request().RequestURI
 	}
@@ -177,6 +188,12 @@ func setupScanner(cfg *config) *scanner.Scanner {
 
 func setupEventCache() *evtcache.Cache {
 	return &evtcache.Cache{}
+}
+
+func setupEventMetrics() *evtmetrics.Metrics {
+	m := evtmetrics.New()
+	prometheus.MustRegister(m)
+	return m
 }
 
 func setupCaptcha() *captcha.Captcha {

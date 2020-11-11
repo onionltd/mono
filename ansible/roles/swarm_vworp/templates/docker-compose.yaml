@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   tor_hs:
-    image: localhost/tor-hidden-service:v0.4.3.5
+    image: "{{ tor_image }}"
     restart: always
     environment:
       VWORP_TOR_SERVICE_HOSTS: 80:vworp:8080
@@ -21,7 +21,7 @@ services:
       - vworp
 
   vanguards_hs:
-    image: localhost/vanguards:latest
+    image: "{{ vanguards_image }}"
     restart: always
     environment:
       GLOBAL_CONTROL_IP: tor_hs
@@ -61,7 +61,7 @@ services:
       - tor_hs
 
   vworp:
-    image: localhost/vworp:latest
+    image: "{{ vworp_image }}"
     restart: always
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
@@ -84,7 +84,7 @@ services:
       - vworp.vworp.data.rw:/home/user/data/rw
 
   gitsync:
-    image: localhost/gitsync:latest
+    image: "{{ gitsync_image }}"
     restart: always
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git

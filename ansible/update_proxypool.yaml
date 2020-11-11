@@ -26,6 +26,6 @@
         - vanguards
 
     - import_role:
-        name: swarm_vworp
+        name: swarm_proxypool
       tags:
         - swarm

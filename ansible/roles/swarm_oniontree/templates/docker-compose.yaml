@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   tor_hs:
-    image: localhost/tor-hidden-service:v0.4.3.5
+    image: "{{ tor_image }}"
     restart: always
     environment:
       HTTPD_TOR_SERVICE_HOSTS: 80:httpd:8080
@@ -26,7 +26,7 @@ services:
       - hxxpbeam
 
   vanguards_hs:
-    image: localhost/vanguards:latest
+    image: "{{ vanguards_image }}"
     restart: always
     environment:
       GLOBAL_CONTROL_IP: tor_hs
@@ -66,7 +66,7 @@ services:
       - tor_hs
 
   httpd:
-    image: localhost/httpd:latest
+    image: "{{ httpd_image }}"
     restart: always
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
@@ -81,7 +81,7 @@ services:
       - oniontree.httpd.data.ro:/home/user/data/ro:ro
 
   hxxpbeam:
-    image: localhost/hxxpbeam:latest
+    image: "{{ hxxpbeam_image }}"
     restart: always
     environment:
       HTTP_LISTEN: 0.0.0.0:8080
@@ -99,7 +99,7 @@ services:
       - oniontree.hxxpbeam.data.ro:/home/user/data/ro:ro
 
   gitsync_www:
-    image: localhost/gitsync:latest
+    image: "{{ gitsync_image }}"
     restart: always
     environment:
       REPOSITORY: https://github.com/oniontree-org/oniontree-org.onion
@@ -116,7 +116,7 @@ services:
       - oniontree.httpd.data.ro:/home/user/data/rw
 
   gitsync_oniontree:
-    image: localhost/gitsync:latest
+    image: "{{ gitsync_image }}"
     restart: always
     environment:
       REPOSITORY: http://rootgit4rghbuenb.onion/onionltd/oniontree.git

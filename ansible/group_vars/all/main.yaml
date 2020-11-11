@@ -1,5 +1,5 @@
 ---
-tor_image: localhost/tor-hidden-service:v0.4.3.5
+tor_image: localhost/tor-hidden-service:v0.4.4.5
 vanguards_image: localhost/vanguards:latest
 gitsync_image: localhost/gitsync:latest
 haproxy_image: localhost/haproxy:latest

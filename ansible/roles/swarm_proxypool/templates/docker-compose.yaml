@@ -2,7 +2,7 @@
 version: "3.3"
 services:
   haproxy:
-    image: {{ haproxy_image }}
+    image: "{{ haproxy_image }}"
     restart: always
     networks:
       proxypool.public:
@@ -17,7 +17,7 @@ services:
 
 {% for i in range(0, proxypool_tor_instances_count) %}
   tor_proxy_{{ i + 1 }}:
-    image: {{ tor_image }}
+    image: "{{ tor_image }}"
     restart: always
     environment:
       TOR_SOCKS_PORT: 0.0.0.0:9050 NoIsolateSOCKSAuth NoIsolateClientProtocol NoIsolateClientAddr NoIsolateDestAddr NoIsolateDestPort
